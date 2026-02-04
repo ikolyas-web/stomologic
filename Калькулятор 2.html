@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StomoLogic</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --accent: #00d4aa;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border: #333;
+            --input-bg: #2a2a2a;
+            --danger: #ef4444;
+        }
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --accent: #059669;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --input-bg: #f1f5f9;
+            --danger: #dc2626;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        .header-kpi {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .kpi-title { 
+            font-size: 2.2rem; 
+            background: linear-gradient(135deg, var(--accent), #14b8a6); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+        }
+        .kpi-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 20px; 
+        }
+        .kpi-item { 
+            padding: 20px; 
+            background: rgba(0,212,170,0.15); 
+            border-radius: 12px; 
+            border: 1px solid rgba(0,212,170,0.3);
+        }
+        .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; }
+        .kpi-label { color: var(--text-secondary); font-size: 0.85rem; }
+
+        .theme-toggle { 
+            position: fixed; top: 20px; right: 20px; 
+            background: var(--bg-secondary); border: 1px solid var(--border); 
+            color: var(--text-primary); padding: 12px; border-radius: 50px; 
+            cursor: pointer; z-index: 1000;
+        }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; margin-bottom: 30px; }
+        @media (max-width: 1200px) { .grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .card h3 { margin-bottom: 20px; color: var(--accent); font-size: 1.3rem; }
+        
+        .input-group {
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .input-group label { min-width: 200px; font-weight: 500; color: var(--text-secondary); }
+        input { 
+            flex: 1; padding: 12px 16px; border: 1px solid var(--border); 
+            background: var(--input-bg); color: var(--text-primary); 
+            border-radius: 8px; font-size: 1rem;
+        }
+        input:focus { 
+            outline: none; border-color: var(--accent); 
+            box-shadow: 0 0 0 3px rgba(0,212,170,0.1); 
+        }
+        .credit-group {
+            background: rgba(239,68,68,0.1);
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        .btn-payoff {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        .btn-payoff:hover { background: #dc2626; }
+
+        .charts-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); 
+            gap: 20px; 
+            height: 400px; 
+            margin-bottom: 30px;
+        }
+        @media (max-width: 1200px) { .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .charts-grid { height: 300px; } }
+        canvas { width: 100% !important; height: 100% !important; }
+
+        .invest-summary { 
+            margin-top: 20px; padding: 16px; 
+            background: rgba(0,212,170,0.1); 
+            border-radius: 8px; 
+        }
+        .invest-row { 
+            display: flex; justify-content: space-between; 
+            margin-bottom: 8px; font-size: 0.95rem; 
+        }
+        .invest-value { font-weight: 600; color: var(--accent); }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    
+    <div class="container">
+        <div class="header-kpi">
+            <div class="kpi-title">StomoLogic</div>
+            <div class="kpi-grid" id="headerKpis"></div>
+        </div>
+
+        <div class="grid">
+            <!-- Выручка -->
+            <div class="card">
+                <h3>📊 Параметры выручки</h3>
+                <div class="input-group">
+                    <label>Рабочие дни/мес:</label>
+                    <input type="range" id="workDays" min="20" max="30" value="21">
+                    <span id="workDaysVal">21</span>
+                </div>
+                <div class="input-group">
+                    <label>Кресла:</label>
+                    <input type="range" id="chairs" min="1" max="20" value="5">
+                    <span id="chairsVal">5</span>
+                </div>
+                <div class="input-group">
+                    <label>Часы/кресло:</label>
+                    <input type="range" id="hours" min="8" max="12" value="12">
+                    <span id="hoursVal">12</span>
+                </div>
+                <div class="input-group">
+                    <label>Загрузка %:</label>
+                    <input type="range" id="load" min="30" max="85" value="50">
+                    <span id="loadVal">50%</span>
+                </div>
+                <div class="input-group">
+                    <label>Нормо-час ₽:</label>
+                    <input type="range" id="normoHour" min="8000" max="100000" value="18000">
+                    <span id="normoHourVal">18k ₽</span>
+                </div>
+            </div>
+
+            <!-- Расходы -->
+            <div class="card">
+                <h3>💰 Расходы (% выручки)</h3>
+                <div class="input-group">
+                    <label>С/С %:</label>
+                    <input type="range" id="soc" min="6" max="20" value="8">
+                    <span id="socVal">8%</span>
+                </div>
+                <div class="input-group">
+                    <label>ФОТ врачей %:</label>
+                    <input type="range" id="fotDoctors" min="20" max="40" value="30">
+                    <span id="fotDoctorsVal">30%</span>
+                </div>
+                <div class="input-group">
+                    <label>ФОТ персонала %:</label>
+                    <input type="range" id="fotStaff" min="20" max="30" value="25">
+                    <span id="fotStaffVal">25%</span>
+                </div>
+                <div class="input-group">
+                    <label>ЗТЛ %:</label>
+                    <input type="range" id="ztl" min="0" max="30" value="0">
+                    <span id="ztlVal">0%</span>
+                </div>
+                <div class="input-group">
+                    <label>Клиника %:</label>
+                    <input type="range" id="clinic" min="1" max="25" value="17">
+                    <span id="clinicVal">17%</span>
+                </div>
+                <div class="input-group">
+                    <label>Маркетинг %:</label>
+                    <input type="range" id="marketing" min="1" max="15" value="5">
+                    <span id="marketingVal">5%</span>
+                </div>
+                <div class="input-group">
+                    <label>Аренда ₽:</label>
+                    <input type="range" id="rent" min="60000" max="3000000" value="2500000">
+                    <span id="rentVal">2.5M ₽</span>
+                </div>
+                <div class="input-group">
+                    <label>Налог %:</label>
+                    <input type="range" id="tax" min="0" max="30" value="0">
+                    <span id="taxVal">0%</span>
+                </div>
+            </div>
+
+            <!-- Инвестиции + КРЕДИТ -->
+            <div class="card">
+                <h3>💎 Инвестиции & Кредит</h3>
+                
+                <!-- ✅ ВЛОЖЕНИЯ -->
+                <div class="input-group">
+                    <label>Вложения ₽:</label>
+                    <input type="range" id="capex" min="0" max="200000000" value="0">
+                    <span id="capexVal">0 ₽</span>
+                </div>
+                
+                <!-- ✅ КРЕДИТНЫЙ БЛОК -->
+                <div class="credit-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label>💳 Кредит 54M</label>
+                        <span style="color: var(--danger); font-weight: 700;" id="creditPaymentDisplay">Платеж: 1.7M ₽/мес</span>
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <input type="checkbox" id="payoffDebt">
+                        <label for="payoffDebt" style="flex: 1; margin: 0;">Погасить при вложениях > 54M</label>
+                        <button class="btn-payoff" id="payoffBtn" onclick="togglePayoff()">Вкл/Выкл</button>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Ставка дисконтир., %:</label>
+                    <input type="range" id="discountRate" min="8" max="20" value="12">
+                    <span id="discountRateVal">12%</span>
+                </div>
+                
+                <div class="invest-summary">
+                    <div class="invest-row">
+                        <span>Общие вложения:</span>
+                        <span class="invest-value" id="totalInvest">0 ₽</span>
+                    </div>
+                    <div class="invest-row">
+                        <span>Окупаемость:</span>
+                        <span class="invest-value" id="paybackDisplay">-</span>
+                    </div>
+                    <div class="invest-row">
+                        <span>ROI годовых:</span>
+                        <span class="invest-value" id="roiDisplay">-</span>
+                    </div>
+                    <div class="invest-row">
+                        <span>NPV (5 лет):</span>
+                        <span class="invest-value" id="npvDisplay">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="card">
+                <h3>📈 Cash Flow (36 месяцев)</h3>
+                <div style="height: 350px;"><canvas id="cashFlowChart"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>📊 Структура расходов</h3>
+                <div style="height: 350px;"><canvas id="expensesChart"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>🌙 Сезонность <small>(Красный<1, Зеленый≥1)</small></h3>
+                <div style="height: 350px;"><canvas id="seasonalityChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            workDays: 21, chairs: 5, hours: 12, load: 50, normoHour: 18000,
+            soc: 8, fotDoctors: 30, fotStaff: 25, ztl: 0, clinic: 17, 
+            rent: 2500000, marketing: 5, tax: 0, capex: 0,
+            discountRate: 12, payoffDebt: false
+        };
+
+        const SEASONALITY = {
+            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+            factors: [0.71, 1.01, 1.12, 1.03, 0.96, 1.08, 1.02, 0.99, 0.99, 0.98, 1.04, 1.06]
+        };
+
+        const CREDIT = {
+            debt: 54000000,
+            monthlyPayment: 1700000,
+            threshold: 54000000
+        };
+
+        let cashFlowChart, expensesChart, seasonalityChart;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            bindInputs();
+            updateAll();
+        });
+
+        function bindInputs() {
+            const inputs = [
+                'workDays','chairs','hours','load','normoHour',
+                'soc','fotDoctors','fotStaff','ztl','clinic','rent','marketing','tax',
+                'capex','discountRate'
+            ];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const valEl = document.getElementById(id + 'Val');
+                    el.addEventListener('input', function() {
+                        state[id] = +el.value;
+                        if (valEl) updateValDisplay(id, valEl);
+                        updateAll();
+                    });
+                }
+            });
+            
+            // ✅ ИСПРАВЛЕНО: добавлен обработчик для checkbox
+            const checkbox = document.getElementById('payoffDebt');
+            if (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    state.payoffDebt = this.checked;
+                    updateAll(); // ✅ Обновляем расчеты при изменении состояния кредита
+                });
+            }
+        }
+
+        function togglePayoff() {
+            const checkbox = document.getElementById('payoffDebt');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                state.payoffDebt = checkbox.checked;
+                updateAll(); // ✅ Обновляем расчеты
+            }
+        }
+
+        function updateValDisplay(id, el) {
+            const val = state[id];
+            if (['load','soc','fotDoctors','fotStaff','ztl','clinic','marketing','tax','discountRate'].includes(id)) {
+                el.textContent = val + '%';
+            } else if (['workDays','chairs','hours'].includes(id)) {
+                el.textContent = val;
+            } else {
+                el.textContent = formatMoney(val);
+            }
+        }
+
+        function initCharts() {
+            const cashCtx = document.getElementById('cashFlowChart').getContext('2d');
+            cashFlowChart = new Chart(cashCtx, {
+                type: 'line',
+                data: { labels: [], datasets: [
+                    {
+                        label: 'Cash Flow, ₽',
+                        data: [],
+                        borderColor: '#00d4aa',
+                        backgroundColor: 'rgba(0,212,170,0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Кредит',
+                        data: [],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239,68,68,0.2)',
+                        borderDash: [5, 5],
+                        tension: 0.3
+                    }
+                ]},
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: v => formatMoney(v) }},
+                        x: { ticks: { maxRotation: 45 }}
+                    }
+                }
+            });
+
+            const expCtx = document.getElementById('expensesChart').getContext('2d');
+            expensesChart = new Chart(expCtx, {
+                type: 'doughnut',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                    '#9966FF', '#FF9F40', '#C9CBCF', '#ef4444'
+                ] }]},
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' }}
+                }
+            });
+
+            const seasCtx = document.getElementById('seasonalityChart').getContext('2d');
+            seasonalityChart = new Chart(seasCtx, {
+                type: 'bar',
+                data: { 
+                    labels: SEASONALITY.labels,
+                    datasets: [{
+                        label: 'Коэф. сезонности',
+                        data: SEASONALITY.factors,
+                        backgroundColor: ctx => ctx.parsed.y < 1 ? 'rgba(255, 99, 132, 0.8)' : 'rgba(75, 192, 192, 0.8)',
+                        borderColor: ctx => ctx.parsed.y < 1 ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'x',
+                    scales: {
+                        y: { min: 0.65, max: 1.15, ticks: { callback: v => v.toFixed(2) }},
+                        x: { ticks: { maxRotation: 0 }}
+                    },
+                    plugins: { legend: { display: false }}
+                }
+            });
+        }
+
+        function getSeasonality(monthIndex) {
+            return SEASONALITY.factors[monthIndex % 12];
+        }
+
+        function calculateMetrics() {
+            const capacity = state.workDays * state.chairs * state.hours;
+            const utilization = capacity * (state.load / 100);
+            const revenue = utilization * state.normoHour;
+            const revenueAnnual = revenue * 12;
+            
+            const totalVarCosts = revenue * ((
+                state.soc + state.fotDoctors + state.fotStaff + 
+                state.ztl + state.clinic + state.marketing
+            ) / 100);
+            
+            const opexMonthly = totalVarCosts + state.rent;
+            const ebitda = revenue - opexMonthly;
+            const profitBeforeTax = ebitda;
+            const profit = profitBeforeTax * (1 - state.tax / 100);
+            const profitAnnual = profit * 12;
+            
+            // ✅ КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: кредитный платеж правильно рассчитывается
+            const creditPayment = (state.payoffDebt && state.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
+            const netProfitMonthly = profit - creditPayment;
+            const netProfitAnnual = netProfitMonthly * 12;
+            const rcpMargin = ebitda / revenue * 100;
+            
+            const totalInvestment = state.capex;
+            
+            const expenses = {
+                'С/С': revenue * (state.soc / 100),
+                'ФОТ врачей': revenue * (state.fotDoctors / 100),
+                'ФОТ персонал': revenue * (state.fotStaff / 100),
+                'ЗТЛ': revenue * (state.ztl / 100),
+                'Клиника': revenue * (state.clinic / 100),
+                'Маркетинг': revenue * (state.marketing / 100),
+                'Аренда': state.rent,
+                'Кредит': creditPayment
+            };
+            
+            let paybackMonths = '-', roiAnnual = '-', npv = 0;
+            if (totalInvestment > 0 && netProfitMonthly > 0) {
+                const rampUpMonths = 6;
+                paybackMonths = Math.round(totalInvestment / netProfitMonthly) + rampUpMonths;
+                roiAnnual = (netProfitAnnual / totalInvestment) * 100;
+                
+                npv = -totalInvestment;
+                for (let i = 0; i < 60; i++) {
+                    let monthlyProfit = netProfitMonthly * getSeasonality(i);
+                    if (i < 6) monthlyProfit *= (i / 6 + 0.1);
+                    monthlyProfit *= Math.pow(1.02, i/12);
+                    
+                    npv += monthlyProfit / Math.pow(1 + state.discountRate/100, (i+1)/12);
+                }
+            }
+
+            return { 
+                revenue, revenueAnnual, profit, profitAnnual, netProfitMonthly, netProfitAnnual,
+                opexMonthly, creditPayment, ebitda, rcpMargin, paybackMonths, roiAnnual, npv, 
+                totalInvestment, expenses
+            };
+        }
+
+        function formatMoney(num) {
+            if (isNaN(num) || num === 0) return '0 ₽';
+            return new Intl.NumberFormat('ru-RU', { 
+                notation: 'compact', 
+                compactDisplay: 'short' 
+            }).format(Math.round(num));
+        }
+
+        function updateAll() {
+            const metrics = calculateMetrics();
+            updateHeaderKPI(metrics);
+            updateInvestmentDisplay(metrics);
+            updateCreditDisplay(metrics);
+            updateCharts(metrics);
+        }
+
+        function updateHeaderKPI(metrics) {
+            document.getElementById('headerKpis').innerHTML = `
+                <div class="kpi-item">
+                    <div class="kpi-value">${formatMoney(metrics.revenue)}</div>
+                    <div class="kpi-label">Выручка/мес</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value">${formatMoney(metrics.revenueAnnual)}</div>
+                    <div class="kpi-label">Выручка/год</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value" style="color: ${metrics.netProfitMonthly > 0 ? 'var(--accent)' : 'var(--danger)'}">
+                        ${formatMoney(metrics.netProfitMonthly)}
+                    </div>
+                    <div class="kpi-label">Чистая прибыль/мес</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value">${formatMoney(metrics.netProfitAnnual)}</div>
+                    <div class="kpi-label">Чистая прибыль/год</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value">${formatMoney(metrics.opexMonthly + metrics.creditPayment)}</div>
+                    <div class="kpi-label">Расходы/мес</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value">${metrics.rcpMargin.toFixed(1)}%</div>
+                    <div class="kpi-label">R по ЧП</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value">${typeof metrics.paybackMonths === 'number' ? metrics.paybackMonths + ' мес' : '-'}</div>
+                    <div class="kpi-label">Окупаемость</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-value">${typeof metrics.roiAnnual === 'number' ? metrics.roiAnnual.toFixed(1) + '%' : '-'}</div>
+                    <div class="kpi-label">ROI годовых</div>
+                </div>
+            `;
+        }
+
+        function updateInvestmentDisplay(metrics) {
+            document.getElementById('totalInvest').textContent = formatMoney(metrics.totalInvestment);
+            document.getElementById('capexVal').textContent = formatMoney(state.capex);
+            
+            document.getElementById('paybackDisplay').textContent = 
+                typeof metrics.paybackMonths === 'number' ? metrics.paybackMonths + ' мес' : '-';
+            document.getElementById('roiDisplay').textContent = 
+                typeof metrics.roiAnnual === 'number' ? metrics.roiAnnual.toFixed(1) + '%' : '-';
+            document.getElementById('npvDisplay').textContent = 
+                metrics.npv > 0 ? '+' + formatMoney(metrics.npv) : formatMoney(metrics.npv);
+        }
+
+        // ✅ НОВЫЙ: обновление отображения платежа по кредиту
+        function updateCreditDisplay(metrics) {
+            const creditDisplay = document.getElementById('creditPaymentDisplay');
+            if (creditDisplay) {
+                if (metrics.creditPayment === 0) {
+                    creditDisplay.textContent = 'Платеж: 0 ₽/мес (погашен)';
+                    creditDisplay.style.color = 'var(--accent)';
+                } else {
+                    creditDisplay.textContent = `Платеж: ${formatMoney(metrics.creditPayment)}/мес`;
+                    creditDisplay.style.color = 'var(--danger)';
+                }
+            }
+        }
+
+        function updateCharts(metrics) {
+            const months = Array.from({length: 36}, (_, i) => `М${i+1}`);
+            const cashflows = months.map((_, i) => {
+                let cf = metrics.netProfitMonthly * getSeasonality(i);
+                if (i < 6) cf *= (i / 6 + 0.1);
+                cf *= Math.pow(1.02, i/12);
+                return cf;
+            });
+            const creditFlows = months.map(() => 
+                (state.payoffDebt && state.capex >= CREDIT.threshold) ? 0 : -CREDIT.monthlyPayment
+            );
+            
+            cashFlowChart.data.labels = months;
+            cashFlowChart.data.datasets[0].data = cashflows;
+            cashFlowChart.data.datasets[1].data = creditFlows;
+            cashFlowChart.update();
+
+            const expenseLabels = Object.keys(metrics.expenses).filter((_, i) => metrics.expenses[Object.keys(metrics.expenses)[i]] > 0);
+            const expenseData = Object.values(metrics.expenses).filter(v => v > 0);
+            expensesChart.data.labels = expenseLabels;
+            expensesChart.data.datasets[0].data = expenseData;
+            expensesChart.update();
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.getAttribute('data-theme') === 'light';
+            document.body.setAttribute('data-theme', isDark ? '' : 'light');
+            event.target.textContent = isDark ? '🌙' : '☀️';
+        }
+    </script>
+</body>
+</html>
+
