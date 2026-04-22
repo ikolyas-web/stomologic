@@ -1,1302 +1,653 @@
-diff --git a/index.html b/index.html
-index 620bf4b474141ecfd6907fa2c87ede03023040cc..afd5822992a55cc358babd38af2c6aafe25ff8a3 100644
---- a/index.html
-+++ b/index.html
-@@ -7,164 +7,175 @@
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-   <style>
- :root {
- --bg-primary: #0a0a0a;
- --bg-secondary: #1a1a1a;
- --accent: #00d4aa;
- --text-primary: #ffffff;
- --text-secondary: #b0b0b0;
- --border: #333;
- --input-bg: #2a2a2a;
- --danger: #ef4444;
- --success: #10b981;
- }
- [data-theme="light"] {
- --bg-primary: #f8fafc;
- --bg-secondary: #ffffff;
- --accent: #059669;
- --text-primary: #1e293b;
- --text-secondary: #64748b;
- --border: #e2e8f0;
- --input-bg: #f1f5f9;
- --danger: #dc2626;
- --success: #059669;
- }
- * { margin: 0; padding: 0; box-sizing: border-box; }
--body {
--font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
--background: var(--bg-primary);
--color: var(--text-primary);
--padding: 20px;
--min-height: 100vh;
--}
--.container { max-width: 1400px; margin: 0 auto; }
-+body {
-+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-+background: var(--bg-primary);
-+color: var(--text-primary);
-+padding: 20px;
-+min-height: 100vh;
-+background-image: radial-gradient(circle at 15% 10%, rgba(0,212,170,0.1), transparent 35%), radial-gradient(circle at 85% 5%, rgba(56,189,248,0.08), transparent 30%);
-+}
-+.container { max-width: 1400px; margin: 0 auto; }
- 
- .header-kpi {
- background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
- border-radius: 20px;
- padding: 30px;
- margin-bottom: 30px;
- border: 1px solid var(--border);
- box-shadow: 0 20px 40px rgba(0,0,0,0.3);
- text-align: center;
- }
- .kpi-title {
- font-size: 2.2rem;
- background: linear-gradient(135deg, var(--accent), #14b8a6);
- -webkit-background-clip: text;
- -webkit-text-fill-color: transparent;
- margin-bottom: 25px;
- }
- .kpi-grid {
- display: grid;
- grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
- gap: 20px;
- }
- .kpi-item {
- padding: 20px;
- background: rgba(0,212,170,0.15);
- border-radius: 12px;
- border: 1px solid rgba(0,212,170,0.3);
- }
- .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; }
- .kpi-label { color: var(--text-secondary); font-size: 0.85rem; }
- 
- .theme-toggle {
- position: fixed; top: 20px; right: 20px;
- background: var(--bg-secondary); border: 1px solid var(--border);
- color: var(--text-primary); padding: 12px; border-radius: 50px;
- cursor: pointer; z-index: 1000;
- }
- 
- .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; margin-bottom: 30px; }
- @media (max-width: 1200px) { .grid { grid-template-columns: 1fr 1fr; } }
- @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
- 
--.card {
--background: var(--bg-secondary);
--border-radius: 16px;
--padding: 24px;
--border: 1px solid var(--border);
--box-shadow: 0 10px 25px rgba(0,0,0,0.2);
--}
--.card h3 { margin-bottom: 20px; color: var(--accent); font-size: 1.3rem; }
-+.card {
-+background: var(--bg-secondary);
-+border-radius: 16px;
-+padding: 24px;
-+border: 1px solid var(--border);
-+box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-+backdrop-filter: blur(6px);
-+position: relative;
-+overflow: hidden;
-+}
-+.card::before {
-+content: "";
-+position: absolute;
-+inset: 0;
-+pointer-events: none;
-+background: linear-gradient(155deg, rgba(255,255,255,0.05), transparent 30%);
-+}
-+.card h3 { margin-bottom: 20px; color: var(--accent); font-size: 1.3rem; }
- 
- .input-group {
- margin-bottom: 16px;
- display: flex; align-items: center; gap: 12px;
- }
- .input-group label { min-width: 200px; font-weight: 500; color: var(--text-secondary); }
- .input-group-controls {
- display: flex; gap: 12px; align-items: center; flex: 1;
- }
- input[type="range"] {
- flex: 1; height: 6px; border-radius: 3px;
- }
- input[type="number"],
- input[type="text"] {
- padding: 10px 12px; border: 1px solid var(--border);
- background: var(--input-bg); color: var(--text-primary);
- border-radius: 8px; font-size: 0.9rem;
- width: 110px;
- }
- input {
- padding: 12px 16px; border: 1px solid var(--border);
- background: var(--input-bg); color: var(--text-primary);
- border-radius: 8px; font-size: 1rem;
- }
- input:focus {
- outline: none; border-color: var(--accent);
- box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
- }
- .credit-group {
- background: rgba(239,68,68,0.1);
- border: 2px solid var(--danger);
- border-radius: 12px;
- padding: 16px;
- margin: 12px 0;
- }
--.btn {
--background: var(--accent);
--color: #000;
--border: none;
--padding: 10px 20px;
--border-radius: 8px;
--cursor: pointer;
-+.btn {
-+background: linear-gradient(135deg, var(--accent), #2dd4bf);
-+color: #000;
-+border: none;
-+padding: 10px 20px;
-+border-radius: 8px;
-+cursor: pointer;
- font-weight: 600;
- margin-right: 8px;
- margin-bottom: 8px;
- }
- .btn:hover { opacity: 0.9; }
- .btn-danger {
- background: var(--danger);
- color: white;
- }
- .btn-danger:hover { opacity: 0.9; }
--.btn-secondary {
--background: var(--text-secondary);
--color: #000;
--}
-+.btn-secondary {
-+background: linear-gradient(135deg, #94a3b8, #cbd5e1);
-+color: #0f172a;
-+}
- 
- .invest-summary {
- margin-top: 20px; padding: 16px;
- background: rgba(0,212,170,0.1);
- border-radius: 8px;
- }
- .invest-row {
- display: flex; justify-content: space-between;
- margin-bottom: 8px; font-size: 0.95rem;
- }
- .invest-value { font-weight: 600; color: var(--accent); }
- 
- .investors-table-wrapper {
- overflow-x: auto;
- margin-top: 16px;
- }
- .investors-table {
- width: 100%;
- border-collapse: collapse;
- font-size: 0.9rem;
- }
- .investors-table th {
- background: rgba(0,212,170,0.2);
- color: var(--accent);
- padding: 12px;
-@@ -185,59 +196,59 @@ border: 1px solid var(--border);
- color: var(--text-primary);
- padding: 6px 8px;
- border-radius: 4px;
- font-size: 0.9rem;
- width: 120px;
- }
- .investor-share-input {
- background: var(--input-bg);
- border: 1px solid var(--border);
- color: var(--text-primary);
- padding: 6px 8px;
- border-radius: 4px;
- font-size: 0.9rem;
- width: 70px;
- }
- .investor-value {
- color: var(--success);
- font-weight: 600;
- }
- .investor-empty {
- color: var(--text-secondary);
- text-align: center;
- padding: 24px !important;
- }
- 
--.charts-grid {
--display: grid;
--grid-template-columns: repeat(2, 1fr);
--gap: 20px;
--height: 400px;
--margin-bottom: 30px;
--}
--@media (max-width: 1400px) { .charts-grid { grid-template-columns: 1fr; } }
--@media (max-width: 768px) { .charts-grid { height: 300px; } }
-+.charts-grid {
-+display: grid;
-+grid-template-columns: repeat(3, 1fr);
-+gap: 20px;
-+height: 400px;
-+margin-bottom: 30px;
-+}
-+@media (max-width: 1400px) { .charts-grid { grid-template-columns: 1fr 1fr; } }
-+@media (max-width: 768px) { .charts-grid { height: 300px; } }
- canvas { width: 100% !important; height: 100% !important; }
- 
- /* Сценарии */
- .scenarios-panel {
- display: grid;
- grid-template-columns: 1fr 1fr;
- gap: 20px;
- margin-bottom: 30px;
- }
- @media (max-width: 768px) { .scenarios-panel { grid-template-columns: 1fr; } }
- 
- .scenario-control {
- background: var(--bg-secondary);
- border-radius: 16px;
- padding: 20px;
- border: 1px solid var(--border);
- }
- .scenario-control h3 { margin-bottom: 15px; color: var(--accent); font-size: 1.1rem; }
- 
- .scenario-input {
- display: flex; gap: 10px; margin-bottom: 15px;
- }
- .scenario-input input {
- flex: 1;
- padding: 10px 12px;
-@@ -322,69 +333,176 @@ color: var(--accent);
- margin: -10px -10px 20px 0;
- }
- .comparison-table {
- width: 100%;
- border-collapse: collapse;
- font-size: 0.9rem;
- margin-top: 20px;
- }
- .comparison-table th {
- background: rgba(0,212,170,0.2);
- color: var(--accent);
- padding: 12px;
- text-align: left;
- border-bottom: 2px solid var(--accent);
- font-weight: 600;
- }
- .comparison-table td {
- padding: 12px;
- border-bottom: 1px solid var(--border);
- }
- .comparison-better {
- background: rgba(16, 185, 129, 0.1);
- color: #10b981;
- font-weight: 600;
- }
--.comparison-worse {
--background: rgba(239, 68, 68, 0.1);
--color: #ef4444;
--}
--</style>
-+.comparison-worse {
-+background: rgba(239, 68, 68, 0.1);
-+color: #ef4444;
-+}
-+.premium-banner {
-+background: radial-gradient(circle at top right, rgba(0,212,170,0.2), transparent 40%), linear-gradient(130deg, #0f172a, #111827 45%, #0b1120);
-+border: 1px solid rgba(0,212,170,0.35);
-+border-radius: 20px;
-+padding: 22px;
-+margin-bottom: 24px;
-+box-shadow: 0 18px 38px rgba(0,0,0,0.28);
-+}
-+.banner-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; }
-+.banner-subtitle { color: #9ca3af; font-size: 0.92rem; }
-+.owner-dashboard-grid {
-+display: grid;
-+grid-template-columns: 1.1fr 0.9fr;
-+gap: 20px;
-+margin-bottom: 30px;
-+}
-+@media (max-width: 1100px) { .owner-dashboard-grid { grid-template-columns: 1fr; } }
-+.ai-panel { background: linear-gradient(160deg, rgba(0,212,170,0.08), rgba(14,165,233,0.04)); }
-+.section-caption { color: var(--text-secondary); margin-bottom: 12px; font-size: 0.9rem; }
-+.executive-list, .insight-list, .leakage-list, .benchmark-list, .timeline-list { list-style: none; display: grid; gap: 10px; }
-+.executive-item, .insight-item, .leakage-item, .benchmark-item, .timeline-item {
-+padding: 12px;
-+border-radius: 10px;
-+border: 1px solid var(--border);
-+background: rgba(15,23,42,0.35);
-+}
-+.severity-badge {
-+display: inline-block;
-+padding: 2px 10px;
-+border-radius: 999px;
-+font-size: 0.75rem;
-+font-weight: 700;
-+margin-right: 8px;
-+}
-+.severity-high { background: rgba(239,68,68,0.22); color: #f87171; }
-+.severity-medium { background: rgba(245,158,11,0.22); color: #fbbf24; }
-+.severity-low { background: rgba(16,185,129,0.2); color: #34d399; }
-+.metric-chip {
-+display: inline-flex;
-+gap: 6px;
-+padding: 4px 8px;
-+border-radius: 8px;
-+background: rgba(148,163,184,0.15);
-+margin: 4px 6px 0 0;
-+font-size: 0.8rem;
-+}
-+.sensitivity-bar {
-+height: 10px;
-+border-radius: 6px;
-+background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
-+margin-top: 8px;
-+position: relative;
-+overflow: hidden;
-+}
-+.sensitivity-point {
-+position: absolute;
-+top: -3px;
-+width: 16px;
-+height: 16px;
-+border-radius: 50%;
-+border: 2px solid #fff;
-+background: #111827;
-+}
-+.scenario-diff-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-+.scenario-diff-table th, .scenario-diff-table td { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; }
-+</style>
-   <style>body { box-sizing: border-box; }</style>
-   <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
-   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-   <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
-  </head>
-  <body>
-   <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-   <div class="container">
-    <div class="header-kpi">
--    <div class="kpi-title">
--     StomoLogic
--    </div>
--    <div class="kpi-grid" id="headerKpis"></div>
--   </div><!-- Сценарии -->
-+   <div class="kpi-title">
-+     StomoLogic
-+    </div>
-+    <div class="kpi-grid" id="headerKpis"></div>
-+   </div>
-+   <div class="premium-banner">
-+    <div class="banner-title">
-+     AI Финансовый директор для стоматологической клиники
-+    </div>
-+    <div class="banner-subtitle">
-+     B2B SaaS режим: объяснимые инсайты, риски, бенчмарк‑предупреждения, драйверы роста и журнал управленческих изменений.
-+    </div>
-+   </div>
-+   <div class="owner-dashboard-grid">
-+    <div class="card ai-panel">
-+     <h3>📌 Резюме для собственника</h3>
-+     <p class="section-caption">Ключевые выводы для собственника с управленческой интерпретацией.</p>
-+     <ul class="executive-list" id="executiveSummary"></ul>
-+    </div>
-+    <div class="card">
-+     <h3>🕓 История изменений и ценность подписки</h3>
-+     <p class="section-caption">Последние изменения параметров + автоматический трекинг влияния на прибыль.</p>
-+     <ul class="timeline-list" id="changeTimeline"></ul>
-+    </div>
-+   </div>
-+   <div class="grid" style="margin-bottom: 30px;">
-+    <div class="card ai-panel">
-+     <h3>🤖 AI‑инсайты</h3>
-+     <ul class="insight-list" id="aiInsightsPanel"></ul>
-+    </div>
-+    <div class="card">
-+     <h3>🧯 Диагностика потерь прибыли</h3>
-+     <ul class="leakage-list" id="profitLeakagePanel"></ul>
-+    </div>
-+    <div class="card">
-+     <h3>🎛️ Чувствительность и драйверы роста</h3>
-+     <ul class="insight-list" id="sensitivityDriversPanel"></ul>
-+    </div>
-+    <div class="card">
-+     <h3>⚖️ Сравнение сценариев</h3>
-+     <div id="scenarioDiffPanel"></div>
-+    </div>
-+    <div class="card" style="grid-column: 1 / -1;">
-+     <h3>🚨 Предупреждения по бенчмаркам</h3>
-+     <ul class="benchmark-list" id="benchmarkWarnings"></ul>
-+    </div>
-+   </div><!-- Сценарии -->
-    <div class="scenarios-panel">
-     <div class="scenario-control">
-      <h3>📍 Точка А (Базовый сценарий)</h3>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">Зафиксировать текущие параметры как базовый сценарий для сравнения</p><button class="btn" onclick="fixPointA()">Зафиксировать точку А</button>
-      <div style="margin-top: 15px; padding: 12px; background: rgba(0,212,170,0.1); border-radius: 8px; border: 1px solid rgba(0,212,170,0.3); display: none;" id="pointADisplay">
-       <div style="font-size: 0.9rem; color: var(--text-secondary);">
-        Зафиксировано:
-       </div>
-       <div style="font-weight: 600; color: var(--accent); margin-top: 8px;" id="pointATime">
-        -
-       </div>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StomoLogic — AI Финансовый директор</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #060b14;
+      --bg-soft: #0c1320;
+      --card: rgba(17, 25, 40, 0.85);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #2dd4bf;
+      --accent-2: #38bdf8;
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(circle at 10% 5%, rgba(45,212,191,.22), transparent 30%),
+        radial-gradient(circle at 90% 0%, rgba(56,189,248,.18), transparent 30%),
+        var(--bg);
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+    .hero {
+      background: linear-gradient(130deg, rgba(15,23,42,.95), rgba(2,132,199,.18));
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      margin-bottom: 20px;
+    }
+    .hero h1 { margin: 0; font-size: 2rem; }
+    .hero p { margin: 10px 0 0; color: var(--muted); }
+
+    .kpis {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .kpi {
+      border: 1px solid var(--line);
+      background: rgba(15,23,42,.55);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .kpi .v { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+    .kpi .l { margin-top: 4px; color: var(--muted); font-size: .82rem; }
+
+    .grid { display: grid; gap: 16px; }
+    .dashboard { grid-template-columns: 1.2fr .8fr; margin-bottom: 16px; }
+    .panels { grid-template-columns: repeat(2, 1fr); margin-bottom: 16px; }
+    .controls { grid-template-columns: repeat(2, 1fr); margin-bottom: 16px; }
+    .charts { grid-template-columns: repeat(3, 1fr); margin-bottom: 16px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 26px rgba(0,0,0,.25);
+    }
+    .card h3 { margin: 0 0 12px; color: var(--accent); }
+    .caption { color: var(--muted); font-size: .9rem; margin-bottom: 10px; }
+
+    .list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(2,6,23,.45);
+      padding: 10px;
+      line-height: 1.35;
+    }
+    .badge { padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 700; }
+    .high { background: rgba(239,68,68,.2); color: #fca5a5; }
+    .medium { background: rgba(245,158,11,.2); color: #fcd34d; }
+    .low { background: rgba(16,185,129,.2); color: #86efac; }
+
+    .control { display: grid; gap: 8px; margin-bottom: 10px; }
+    .row { display: flex; gap: 10px; align-items: center; }
+    .row label { min-width: 180px; color: var(--muted); font-size: .9rem; }
+    input[type="range"] { flex: 1; }
+    input[type="number"], input[type="text"] {
+      width: 110px;
+      background: rgba(15,23,42,.7);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+    }
+    .btn {
+      background: linear-gradient(130deg, var(--accent), var(--accent-2));
+      color: #00111a;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn-danger { background: linear-gradient(130deg, #f87171, #ef4444); color: white; }
+    .mini { font-size: .82rem; color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 8px; text-align: left; }
+    th { color: var(--accent); }
+
+    .chip { display: inline-block; margin: 4px 6px 0 0; background: rgba(148,163,184,.2); border-radius: 8px; padding: 2px 8px; font-size: .8rem; }
+    .good { color: var(--success); }
+    .bad { color: var(--danger); }
+
+    @media (max-width: 1200px) {
+      .dashboard, .panels, .controls, .charts { grid-template-columns: 1fr; }
+      .row label { min-width: 140px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>StomoLogic • AI Финансовый директор для клиники</h1>
+      <p>B2B SaaS-платформа для собственника: explainable-инсайты, диагностика потерь прибыли, риски и сценарное управление.</p>
+      <div id="headerKpis" class="kpis"></div>
+    </section>
+
+    <section class="grid dashboard">
+      <article class="card">
+        <h3>📌 Резюме для собственника (ExecutiveSummary)</h3>
+        <ul id="executiveSummary" class="list"></ul>
+      </article>
+      <article class="card">
+        <h3>🕓 История изменений и подписочная ценность</h3>
+        <p class="caption">Показывает последние управленческие действия и их связь с метриками.</p>
+        <ul id="changeTimeline" class="list"></ul>
+      </article>
+    </section>
+
+    <section class="grid panels">
+      <article class="card">
+        <h3>🤖 AI-инсайты (AIInsightsPanel)</h3>
+        <ul id="aiInsightsPanel" class="list"></ul>
+      </article>
+      <article class="card">
+        <h3>🧯 Потери прибыли (ProfitLeakagePanel)</h3>
+        <ul id="profitLeakagePanel" class="list"></ul>
+      </article>
+      <article class="card">
+        <h3>🎛️ Чувствительность и драйверы роста (SensitivityDriversPanel)</h3>
+        <ul id="sensitivityDriversPanel" class="list"></ul>
+      </article>
+      <article class="card">
+        <h3>⚖️ Сравнение сценариев (ScenarioDiffPanel)</h3>
+        <div id="scenarioDiffPanel"></div>
+      </article>
+    </section>
+
+    <section class="card" style="margin-bottom:16px;">
+      <h3>🚨 Предупреждения по бенчмаркам (BenchmarkWarnings)</h3>
+      <ul id="benchmarkWarnings" class="list"></ul>
+    </section>
+
+    <section class="grid controls">
+      <article class="card">
+        <h3>📊 Параметры выручки</h3>
+        <div class="control" id="revenueControls"></div>
+      </article>
+      <article class="card">
+        <h3>💰 Расходы и инвестиции</h3>
+        <div class="control" id="costControls"></div>
+      </article>
+    </section>
+
+    <section class="card" style="margin-bottom:16px;">
+      <h3>💾 Сценарии</h3>
+      <div class="row" style="margin-bottom:10px;">
+        <button class="btn" onclick="fixPointA()">Зафиксировать Точку А</button>
+        <input type="text" id="scenarioName" placeholder="Название сценария" />
+        <button class="btn" onclick="saveScenario()">Сохранить сценарий</button>
       </div>
-     </div>
-     <div class="scenario-control">
-      <h3>💾 Сохранить сценарий</h3>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">Дайте имя и сохраните текущую конфигурацию</p>
-      <div class="scenario-input">
-       <input type="text" id="scenarioName" placeholder="Название сценария (e.g. Оптимистичный)"> <button class="btn" onclick="saveScenario()">Сохранить</button>
-      </div>
-     </div>
-    </div>
-    <div class="card" style="grid-column: 1 / -1; margin-bottom: 30px;">
-     <h3>📊 Сохраненные сценарии</h3>
-     <div class="investors-table-wrapper">
-      <table class="scenarios-table">
-@@ -548,305 +666,355 @@ color: #ef4444;
-       </div>
-      </div>
-     </div>
-     <div class="investors-table-wrapper">
-      <table class="investors-table">
-       <thead>
-        <tr>
-         <th style="width: 150px;">Инвестор</th>
-         <th style="width: 100px;">Доля %</th>
-         <th style="width: 120px;">Прогноз Г1</th>
-         <th style="width: 120px;">Прогноз Г2</th>
-         <th style="width: 120px;">Прогноз Г3</th>
-         <th style="width: 140px;">Всего прогноз</th>
-        </tr>
-       </thead>
-       <tbody id="investorsTable">
-        <tr>
-         <td colspan="6" class="investor-empty">Добавьте инвесторов с помощью ползунка выше</td>
-        </tr>
-       </tbody>
+      <table>
+        <thead>
+          <tr>
+            <th>Название</th><th>Выручка/мес</th><th>Чистая прибыль/мес</th><th>ROI</th><th>Дата</th><th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="scenariosTableBody"></tbody>
       </table>
-     </div>
-    </div>
-   </div>
-   <div class="charts-grid">
--   <div class="card">
--    <h3>📈 Cash Flow (36 месяцев)</h3>
-+   <div class="card">
-+    <h3>📈 Денежный поток (36 месяцев)</h3>
-     <div style="height: 350px;">
-      <canvas id="cashFlowChart"></canvas>
-     </div>
-    </div>
-    <div class="card">
-     <h3>💵 Сравнение прибыли по сценариям</h3>
-     <div style="height: 350px;">
-      <canvas id="revenueVsProfitChart"></canvas>
-     </div>
-    </div>
-    <div class="card">
-     <h3>📊 Структура расходов</h3>
-     <div style="height: 350px;">
-      <canvas id="expensesChart"></canvas>
-     </div>
-    </div>
--   <div class="card">
--    <h3>🌙 Сезонность <small>(Красный&lt;1, Зеленый≥1)</small></h3>
--    <div style="height: 350px;">
--     <canvas id="seasonalityChart"></canvas>
--    </div>
--   </div>
--  </div><!-- Модальное окно сравнения -->
-+  </div><!-- Модальное окно сравнения -->
-   <div class="comparison-modal" id="comparisonModal">
-    <div class="comparison-modal-content">
-     <span class="comparison-modal-close" onclick="closeComparison()">×</span>
-     <h2 style="color: var(--accent); margin-bottom: 20px;">Сравнение сценариев</h2>
-     <div id="comparisonContent"></div>
-    </div>
-   </div>
-   <script>
- let state = {
- workDays: 21, chairs: 5, hours: 12, load: 0, normoHour: 18000,
- soc: 8, fotDoctors: 0, fotStaff: 0, ztl: 0, clinic: 17,
- rent: 2700000, marketing: 5, tax: 0, capex: 0,
- discountRate: 12, payoffDebt: false,
--investorCount: 0, dividendRate: 50,
--investors: [],
--netProfitMonthly: 0
--};
-+investorCount: 0, dividendRate: 50,
-+investors: [],
-+netProfitMonthly: 0,
-+changeHistory: []
-+};
- 
- let scenarios = [];
- let pointA = null;
- let currentMetrics = null;
- 
- const SEASONALITY = {
- labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
- factors: [0.71, 1.01, 1.12, 1.03, 0.96, 1.08, 1.02, 0.99, 0.99, 0.98, 1.04, 1.06]
- };
- 
--const CREDIT = {
--debt: 54000000,
--monthlyPayment: 1700000,
--threshold: 54000000
--};
--
--let cashFlowChart, revenueVsProfitChart, expensesChart, seasonalityChart;
-+const CREDIT = {
-+debt: 54000000,
-+monthlyPayment: 1700000,
-+threshold: 54000000
-+};
-+
-+const benchmarkConfig = {
-+minLoad: 65,
-+maxDoctorsFot: 28,
-+maxStaffFot: 18,
-+maxMarketing: 12,
-+maxRentShare: 18,
-+minMargin: 18,
-+minRoiAnnual: 25
-+};
-+
-+const InsightEngine = {
-+generate(metrics, ctx) {
-+const findings = [];
-+const addFinding = ({title, reason, severity = 'low', metricsBasis = {}, recommendation = ''}) =>
-+  findings.push({title, reason, severity, metricsBasis, recommendation});
-+
-+const rentShare = metrics.revenue > 0 ? (ctx.rent / metrics.revenue) * 100 : 0;
-+if (ctx.load < benchmarkConfig.minLoad) {
-+  addFinding({
-+    title: 'Низкая загрузка кресел ограничивает рост EBITDA',
-+    reason: `Факт ${ctx.load.toFixed(1)}% ниже бенчмарка ${benchmarkConfig.minLoad}%`,
-+    severity: 'high',
-+    metricsBasis: { load: `${ctx.load.toFixed(1)}%`, revenue: formatMoney(metrics.revenue) },
-+    recommendation: 'Приоритет: заполнение расписания и рост первичных приёмов.'
-+  });
-+}
-+if (rentShare > benchmarkConfig.maxRentShare) {
-+  addFinding({
-+    title: 'Аренда съедает операционный рычаг',
-+    reason: `Доля аренды ${rentShare.toFixed(1)}% при норме до ${benchmarkConfig.maxRentShare}%`,
-+    severity: 'medium',
-+    metricsBasis: { rent: formatMoney(ctx.rent), rentShare: `${rentShare.toFixed(1)}%` },
-+    recommendation: 'Пересмотреть договор аренды или увеличить монетизацию нормо-часа.'
-+  });
-+}
-+if (metrics.rcpMargin < benchmarkConfig.minMargin) {
-+  addFinding({
-+    title: 'Маржинальность ниже целевого уровня',
-+    reason: `R по ЧП ${metrics.rcpMargin.toFixed(1)}% < ${benchmarkConfig.minMargin}%`,
-+    severity: 'high',
-+    metricsBasis: { margin: `${metrics.rcpMargin.toFixed(1)}%`, netProfit: formatMoney(metrics.netProfitMonthly) },
-+    recommendation: 'Оптимизировать долю ФОТ и себестоимость по ключевым услугам.'
-+  });
-+}
-+const leakage = Math.max(0, (benchmarkConfig.minLoad - ctx.load) / 100 * ctx.workDays * ctx.chairs * ctx.hours * ctx.normoHour);
-+addFinding({
-+  title: 'Потенциал упущенной выручки',
-+  reason: 'Сравнение текущей загрузки с бенчмарк-ориентиром.',
-+  severity: leakage > 4000000 ? 'high' : 'medium',
-+  metricsBasis: { leakageRevenue: formatMoney(leakage), targetLoad: `${benchmarkConfig.minLoad}%` },
-+  recommendation: 'Усилить retention, доходимость и каналы первичного трафика.'
-+});
-+return findings;
-+}
-+};
-+
-+let cashFlowChart, revenueVsProfitChart, expensesChart;
- 
- // Загрузить сценарии из localStorage
- function loadScenariosFromStorage() {
- const stored = localStorage.getItem('stomo_scenarios');
- if (stored) {
-   try {
-     scenarios = JSON.parse(stored);
-     updateScenariosTable();
-   } catch (e) {
-     console.error('Ошибка при загрузке сценариев', e);
-   }
- }
- }
- 
- // Сохранить сценарии в localStorage
- function saveScenariosToStorage() {
- localStorage.setItem('stomo_scenarios', JSON.stringify(scenarios));
- }
- 
- document.addEventListener('DOMContentLoaded', function() {
- initCharts();
- bindInputs();
- loadScenariosFromStorage();
- updateAll();
- });
- 
--function bindInputs() {
-+function bindInputs() {
- const inputs = [
- 'workDays','chairs','hours','load','normoHour',
- 'soc','fotDoctors','fotStaff','ztl','clinic','rent','marketing','tax',
- 'capex','discountRate','investorCount','dividendRate'
- ];
- inputs.forEach(id => {
- const sliderEl = document.getElementById(id);
- const inputEl = document.getElementById(id + 'Input');
- 
- if (sliderEl) {
- sliderEl.addEventListener('input', function() {
- state[id] = +sliderEl.value;
- if (inputEl) inputEl.value = +sliderEl.value;
--if (id === 'investorCount') {
--  state.investors = Array(+sliderEl.value).fill().map((_,i) => state.investors[i] || {name: `Инвестор ${i+1}`, share: 100 / Math.max(1, +sliderEl.value)});
--  normalizeInvestorShares();
--}
--updateAll();
-+if (id === 'investorCount') {
-+  state.investors = Array(+sliderEl.value).fill().map((_,i) => state.investors[i] || {name: `Инвестор ${i+1}`, share: 100 / Math.max(1, +sliderEl.value)});
-+  normalizeInvestorShares();
-+}
-+recordChange(id, state[id]);
-+updateAll();
- });
- }
- 
- if (inputEl) {
- inputEl.addEventListener('change', function() {
- let val = +inputEl.value;
- const min = +sliderEl.getAttribute('min');
- const max = +sliderEl.getAttribute('max');
- val = Math.min(Math.max(val, min), max);
- state[id] = val;
- sliderEl.value = val;
- inputEl.value = val;
--if (id === 'investorCount') {
--  state.investors = Array(+val).fill().map((_,i) => state.investors[i] || {name: `Инвестор ${i+1}`, share: 100 / Math.max(1, +val)});
--  normalizeInvestorShares();
--}
--updateAll();
-+if (id === 'investorCount') {
-+  state.investors = Array(+val).fill().map((_,i) => state.investors[i] || {name: `Инвестор ${i+1}`, share: 100 / Math.max(1, +val)});
-+  normalizeInvestorShares();
-+}
-+recordChange(id, state[id]);
-+updateAll();
- });
- 
- inputEl.addEventListener('input', function() {
- sliderEl.value = +inputEl.value;
- });
- }
- });
- 
- const checkbox = document.getElementById('payoffDebt');
- if (checkbox) {
--checkbox.addEventListener('change', function() {
--state.payoffDebt = this.checked;
--updateAll();
--});
--}
--}
--
--function normalizeInvestorShares() {
-+checkbox.addEventListener('change', function() {
-+state.payoffDebt = this.checked;
-+recordChange('payoffDebt', this.checked ? 'on' : 'off');
-+updateAll();
-+});
-+}
-+}
-+
-+function recordChange(label, value) {
-+state.changeHistory.push({ label, value, ts: new Date().toISOString() });
-+if (state.changeHistory.length > 60) state.changeHistory = state.changeHistory.slice(-60);
-+}
-+
-+function normalizeInvestorShares() {
- if (state.investors.length === 0) return;
- const totalShare = state.investors.reduce((sum, inv) => sum + inv.share, 0);
- if (Math.abs(totalShare - 100) > 0.1) {
-   state.investors.forEach(inv => {
-     inv.share = (inv.share / totalShare) * 100;
-   });
- }
- }
- 
--function calculateMetrics() {
--const capacity = state.workDays * state.chairs * state.hours;
--const utilization = capacity * (state.load / 100);
--const revenue = utilization * state.normoHour;
--const revenueAnnual = revenue * 12;
--
--const totalVarCosts = revenue * ((
--state.soc + state.fotDoctors + state.fotStaff +
--state.ztl + state.clinic + state.marketing
--) / 100);
--
--const opexMonthly = totalVarCosts + state.rent;
--const ebitda = revenue - opexMonthly;
--const profitBeforeTax = ebitda;
--const profit = profitBeforeTax * (1 - state.tax / 100);
--const profitAnnual = profit * 12;
--
--const creditPayment = (state.payoffDebt && state.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
--const netProfitMonthly = profit - creditPayment;
--const netProfitAnnual = netProfitMonthly * 12;
--const rcpMargin = ebitda / revenue * 100 || 0;
--
--const totalInvestment = state.capex;
--
--state.netProfitMonthly = netProfitMonthly;
--
--const dividendPoolMonthly = netProfitMonthly > 0 ? netProfitMonthly * (state.dividendRate / 100) : 0;
--
--const investorYearlyDividends = state.investors.map((inv, i) => ({
--  forecastYear1: netProfitMonthly > 0 ? calculateInvestorYearlyForecast(0, i) : 0,
--  forecastYear2: netProfitMonthly > 0 ? calculateInvestorYearlyForecast(12, i) : 0,
--  forecastYear3: netProfitMonthly > 0 ? calculateInvestorYearlyForecast(24, i) : 0,
--  forecastTotal: 0
--}));
--
--investorYearlyDividends.forEach((divs) => {
--  divs.forecastTotal = divs.forecastYear1 + divs.forecastYear2 + divs.forecastYear3;
--});
--
--const expenses = {
--'С/С': revenue * (state.soc / 100),
--'ФОТ врачей': revenue * (state.fotDoctors / 100),
--'ФОТ персонал': revenue * (state.fotStaff / 100),
--'ЗТЛ': revenue * (state.ztl / 100),
--'Клиника': revenue * (state.clinic / 100),
--'Маркетинг': revenue * (state.marketing / 100),
--'Аренда': state.rent,
--'Кредит': creditPayment,
--'Дивиденды': dividendPoolMonthly
--};
--
--let paybackMonths = '-', roiAnnual = '-', npv = 0;
--if (totalInvestment > 0 && netProfitMonthly > 0) {
--const rampUpMonths = 6;
--paybackMonths = Math.round(totalInvestment / netProfitMonthly) + rampUpMonths;
--roiAnnual = (netProfitAnnual / totalInvestment) * 100;
--
--npv = -totalInvestment;
--for (let i = 0; i < 60; i++) {
--let monthlyProfit = netProfitMonthly * getSeasonality(i);
--if (i < 6) monthlyProfit *= (i / 6 + 0.1);
--monthlyProfit *= Math.pow(1.02, i/12);
--npv += monthlyProfit / Math.pow(1 + state.discountRate/100, (i+1)/12);
--}
--}
--
--return {
--revenue, revenueAnnual, profit, profitAnnual, netProfitMonthly, netProfitAnnual,
--opexMonthly, creditPayment, ebitda, rcpMargin, paybackMonths, roiAnnual, npv,
--totalInvestment, expenses, dividendPoolMonthly,
--investorYearlyDividends
--};
--}
--
--function calculateInvestorYearlyForecast(startMonth, investorIndex) {
--if (state.investors.length === 0 || state.netProfitMonthly <= 0) return 0;
--const totalInvestorShare = state.investors.reduce((sum, inv) => sum + inv.share, 0);
--if (totalInvestorShare <= 0) return 0;
--
--let yearlyDividends = 0;
--for (let i = 0; i < 12; i++) {
--  let monthIndex = (startMonth + i) % 12;
--  let monthlyProfit = state.netProfitMonthly * getSeasonality(monthIndex);
--  if (startMonth + i < 6) monthlyProfit *= ((startMonth + i) / 6 + 0.1);
--  monthlyProfit *= Math.pow(1.02, (startMonth + i)/12);
--  const monthlyDividendPool = monthlyProfit * (state.dividendRate / 100);
--  yearlyDividends += monthlyDividendPool * (state.investors[investorIndex].share / totalInvestorShare);
--}
--return yearlyDividends;
--}
-+function calculateMetrics() {
-+const metrics = buildMetricsFromState(state);
-+state.netProfitMonthly = metrics.netProfitMonthly;
-+return metrics;
-+}
-+
-+function buildMetricsFromState(s) {
-+const capacity = s.workDays * s.chairs * s.hours;
-+const utilization = capacity * (s.load / 100);
-+const revenue = utilization * s.normoHour;
-+const revenueAnnual = revenue * 12;
-+const totalVarCosts = revenue * ((s.soc + s.fotDoctors + s.fotStaff + s.ztl + s.clinic + s.marketing) / 100);
-+const opexMonthly = totalVarCosts + s.rent;
-+const ebitda = revenue - opexMonthly;
-+const profit = ebitda * (1 - s.tax / 100);
-+const profitAnnual = profit * 12;
-+const creditPayment = (s.payoffDebt && s.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
-+const netProfitMonthly = profit - creditPayment;
-+const netProfitAnnual = netProfitMonthly * 12;
-+const rcpMargin = ebitda / revenue * 100 || 0;
-+const totalInvestment = s.capex;
-+const dividendPoolMonthly = netProfitMonthly > 0 ? netProfitMonthly * (s.dividendRate / 100) : 0;
-+
-+let paybackMonths = '-', roiAnnual = '-', npv = 0;
-+if (totalInvestment > 0 && netProfitMonthly > 0) {
-+  const rampUpMonths = 6;
-+  paybackMonths = Math.round(totalInvestment / netProfitMonthly) + rampUpMonths;
-+  roiAnnual = (netProfitAnnual / totalInvestment) * 100;
-+  npv = -totalInvestment;
-+  for (let i = 0; i < 60; i++) {
-+    let monthlyProfit = netProfitMonthly * getSeasonality(i);
-+    if (i < 6) monthlyProfit *= (i / 6 + 0.1);
-+    monthlyProfit *= Math.pow(1.02, i / 12);
-+    npv += monthlyProfit / Math.pow(1 + s.discountRate / 100, (i + 1) / 12);
-+  }
-+}
-+
-+const expenses = {
-+'С/С': revenue * (s.soc / 100),
-+'ФОТ врачей': revenue * (s.fotDoctors / 100),
-+'ФОТ персонал': revenue * (s.fotStaff / 100),
-+'ЗТЛ': revenue * (s.ztl / 100),
-+'Клиника': revenue * (s.clinic / 100),
-+'Маркетинг': revenue * (s.marketing / 100),
-+'Аренда': s.rent,
-+'Кредит': creditPayment,
-+'Дивиденды': dividendPoolMonthly
-+};
-+
-+const investorYearlyDividends = (s.investors || []).map((inv, i) => ({
-+  forecastYear1: netProfitMonthly > 0 ? calculateInvestorYearlyForecastForState(s, netProfitMonthly, 0, i) : 0,
-+  forecastYear2: netProfitMonthly > 0 ? calculateInvestorYearlyForecastForState(s, netProfitMonthly, 12, i) : 0,
-+  forecastYear3: netProfitMonthly > 0 ? calculateInvestorYearlyForecastForState(s, netProfitMonthly, 24, i) : 0,
-+  forecastTotal: 0
-+}));
-+investorYearlyDividends.forEach(divs => divs.forecastTotal = divs.forecastYear1 + divs.forecastYear2 + divs.forecastYear3);
-+
-+return { revenue, revenueAnnual, profit, profitAnnual, netProfitMonthly, netProfitAnnual, opexMonthly, creditPayment, ebitda, rcpMargin, paybackMonths, roiAnnual, npv, totalInvestment, expenses, dividendPoolMonthly, investorYearlyDividends };
-+}
-+
-+function calculateInvestorYearlyForecastForState(localState, baseNetProfitMonthly, startMonth, investorIndex) {
-+if ((localState.investors || []).length === 0 || baseNetProfitMonthly <= 0) return 0;
-+const totalInvestorShare = localState.investors.reduce((sum, inv) => sum + inv.share, 0);
-+if (totalInvestorShare <= 0) return 0;
-+
-+let yearlyDividends = 0;
-+for (let i = 0; i < 12; i++) {
-+  let monthIndex = (startMonth + i) % 12;
-+  let monthlyProfit = baseNetProfitMonthly * getSeasonality(monthIndex);
-+  if (startMonth + i < 6) monthlyProfit *= ((startMonth + i) / 6 + 0.1);
-+  monthlyProfit *= Math.pow(1.02, (startMonth + i)/12);
-+  const monthlyDividendPool = monthlyProfit * (localState.dividendRate / 100);
-+  yearlyDividends += monthlyDividendPool * (localState.investors[investorIndex].share / totalInvestorShare);
-+}
-+return yearlyDividends;
-+}
-+
-+function calculateInvestorYearlyForecast(startMonth, investorIndex) {
-+return calculateInvestorYearlyForecastForState(state, state.netProfitMonthly, startMonth, investorIndex);
-+}
- 
- function formatMoney(num) {
- if (isNaN(num) || num === 0) return '0 ₽';
- return new Intl.NumberFormat('ru-RU', {
- notation: 'compact',
- compactDisplay: 'short'
- }).format(Math.round(num));
- }
- 
--function updateAll() {
--currentMetrics = calculateMetrics();
--updateHeaderKPI(currentMetrics);
--updateInvestmentDisplay(currentMetrics);
--updateCreditDisplay(currentMetrics);
--updateInvestorsDisplay(currentMetrics);
--updateCharts(currentMetrics);
--}
-+function updateAll() {
-+currentMetrics = calculateMetrics();
-+updateHeaderKPI(currentMetrics);
-+updateInvestmentDisplay(currentMetrics);
-+updateCreditDisplay(currentMetrics);
-+updateInvestorsDisplay(currentMetrics);
-+updateCharts(currentMetrics);
-+renderInsightPanels(currentMetrics);
-+}
- 
- function updateHeaderKPI(metrics) {
- document.getElementById('headerKpis').innerHTML = `
- <div class="kpi-item">
- <div class="kpi-value">${formatMoney(metrics.revenue)}</div>
- <div class="kpi-label">Выручка/мес</div>
- </div>
- <div class="kpi-item">
- <div class="kpi-value">${formatMoney(metrics.revenueAnnual)}</div>
- <div class="kpi-label">Выручка/год</div>
- </div>
- <div class="kpi-item">
- <div class="kpi-value" style="color: ${metrics.netProfitMonthly > 0 ? 'var(--accent)' : 'var(--danger)'}">
- ${formatMoney(metrics.netProfitMonthly)}
- </div>
- <div class="kpi-label">Чистая прибыль/мес</div>
- </div>
- <div class="kpi-item">
- <div class="kpi-value">${formatMoney(metrics.netProfitAnnual)}</div>
- <div class="kpi-label">Чистая прибыль/год</div>
- </div>
- <div class="kpi-item">
- <div class="kpi-value">${formatMoney(metrics.opexMonthly + metrics.creditPayment + metrics.dividendPoolMonthly)}</div>
- <div class="kpi-label">Расходы/мес</div>
- </div>
-@@ -897,88 +1065,90 @@ investorsTable.innerHTML = state.investors.slice(0, state.investorCount).map((in
-   const divs = metrics.investorYearlyDividends[i] || {forecastYear1: 0, forecastYear2: 0, forecastYear3: 0, forecastTotal: 0};
-   return `
-     <tr>
-       <td>
-         <input type="text" class="investor-name-input" value="${inv.name}" 
-           onchange="updateInvestorName(${i}, this.value)" 
-           onclick="event.stopPropagation()">
-       </td>
-       <td>
-         <input type="number" class="investor-share-input" value="${inv.share.toFixed(1)}" min="0" max="100"
-           onchange="updateInvestorShare(${i}, this.value)"
-           onclick="event.stopPropagation()">
-       </td>
-       <td><span class="investor-value">${formatMoney(divs.forecastYear1)}</span></td>
-       <td><span class="investor-value">${formatMoney(divs.forecastYear2)}</span></td>
-       <td><span class="investor-value">${formatMoney(divs.forecastYear3)}</span></td>
-       <td><span class="investor-value">${formatMoney(divs.forecastTotal)}</span></td>
-     </tr>
-   `;
- }).join('');
- } else {
- investorsTable.innerHTML = '<tr><td colspan="6" class="investor-empty">Добавьте инвесторов с помощью ползунка выше</td></tr>';
- }
- }
- 
--function updateInvestorName(index, value) {
--state.investors[index].name = value;
--updateAll();
--}
-+function updateInvestorName(index, value) {
-+state.investors[index].name = value;
-+recordChange(`investor_${index + 1}_name`, value);
-+updateAll();
-+}
- 
- function updateInvestorShare(index, value) {
- const newShare = Math.max(0, Math.min(100, +value));
--state.investors[index].share = newShare;
-+state.investors[index].share = newShare;
-+recordChange(`investor_${index + 1}_share`, newShare.toFixed(1) + '%');
- 
- // Если вводим руками, перераспределяем остальные доли пропорционально
- const otherInvestors = state.investors.filter((_, i) => i !== index);
- if (otherInvestors.length > 0) {
-   const remainingShare = 100 - newShare;
-   const otherTotalOld = otherInvestors.reduce((sum, inv) => sum + inv.share, 0);
-   
-   if (otherTotalOld > 0) {
-     otherInvestors.forEach(inv => {
-       inv.share = (inv.share / otherTotalOld) * remainingShare;
-     });
-   } else {
-     // Если остальные были 0, распределяем поровну
-     const equalShare = remainingShare / otherInvestors.length;
-     otherInvestors.forEach(inv => {
-       inv.share = equalShare;
-     });
-   }
- }
- 
- updateAll();
- }
- 
- function initCharts() {
- const cashCtx = document.getElementById('cashFlowChart').getContext('2d');
- cashFlowChart = new Chart(cashCtx, {
- type: 'line',
- data: { labels: [], datasets: [
- {
--label: 'Cash Flow, ₽',
-+label: 'Денежный поток, ₽',
- data: [],
- borderColor: '#00d4aa',
- backgroundColor: 'rgba(0,212,170,0.1)',
- fill: true,
- tension: 0.3
- },
- {
- label: 'Кредит',
- data: [],
- borderColor: '#ef4444',
- backgroundColor: 'rgba(239,68,68,0.2)',
- borderDash: [5, 5],
- tension: 0.3
- }
- ]},
- options: {
- responsive: true,
- maintainAspectRatio: false,
- scales: {
- y: { beginAtZero: true, ticks: { callback: v => formatMoney(v) }},
- x: { ticks: { maxRotation: 45 }}
- }
- }
- });
- 
-@@ -1012,75 +1182,51 @@ legend: { display: true, position: 'top' },
- tooltip: { 
-   callbacks: {
-     label: function(context) {
-       return context.dataset.label + ': ' + formatMoney(context.parsed.y);
-     }
-   }
- }
- }
- }
- });
- 
- const expCtx = document.getElementById('expensesChart').getContext('2d');
- expensesChart = new Chart(expCtx, {
- type: 'doughnut',
- data: { labels: [], datasets: [{ data: [], backgroundColor: [
- '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
- '#9966FF', '#FF9F40', '#C9CBCF', '#ef4444', '#10b981'
- ] }]},
- options: {
- responsive: true,
- maintainAspectRatio: false,
- plugins: { legend: { position: 'bottom' }}
- }
- });
- 
--const seasCtx = document.getElementById('seasonalityChart').getContext('2d');
--seasonalityChart = new Chart(seasCtx, {
--type: 'bar',
--data: {
--labels: SEASONALITY.labels,
--datasets: [{
--label: 'Коэф. сезонности',
--data: SEASONALITY.factors,
--backgroundColor: ctx => ctx.parsed.y < 1 ? 'rgba(255, 99, 132, 0.8)' : 'rgba(75, 192, 192, 0.8)',
--borderColor: ctx => ctx.parsed.y < 1 ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)',
--borderWidth: 2
--}]
--},
--options: {
--responsive: true,
--maintainAspectRatio: false,
--indexAxis: 'x',
--scales: {
--y: { min: 0.65, max: 1.15, ticks: { callback: v => v.toFixed(2) }},
--x: { ticks: { maxRotation: 0 }}
--},
--plugins: { legend: { display: false }}
--}
--});
--}
-+}
- 
- function getSeasonality(monthIndex) {
- return SEASONALITY.factors[monthIndex % 12];
- }
- 
- function updateCharts(metrics) {
- const months = Array.from({length: 36}, (_, i) => `М${i+1}`);
- const cashflows = months.map((_, i) => {
- let cf = metrics.netProfitMonthly * getSeasonality(i);
- if (i < 6) cf *= (i / 6 + 0.1);
- cf *= Math.pow(1.02, i/12);
- return cf;
- });
- const creditFlows = months.map(() =>
- (state.payoffDebt && state.capex >= CREDIT.threshold) ? 0 : -CREDIT.monthlyPayment
- );
- 
- cashFlowChart.data.labels = months;
- cashFlowChart.data.datasets[0].data = cashflows;
- cashFlowChart.data.datasets[1].data = creditFlows;
- cashFlowChart.update();
- 
- // Точка А (если зафиксирована)
- const pointAProfits = pointA ? months.map((_, i) => {
- const pointAMetrics = calculateMetricsFromState(pointA);
-@@ -1342,97 +1488,124 @@ html += `
-       </tr>
-     `;
-   });
- 
-   html += `</tbody></table>`;
- }
- 
- document.getElementById('comparisonContent').innerHTML = html;
- document.getElementById('comparisonModal').classList.add('active');
- }
- 
- function closeComparison() {
- document.getElementById('comparisonModal').classList.remove('active');
- }
- 
- function deleteScenario(index) {
- const scenario = scenarios[index];
- if (!confirm(`Удалить сценарий "${scenario.name}"?`)) return;
- 
- scenarios.splice(index, 1);
- saveScenariosToStorage();
- updateScenariosTable();
- showNotification(`Сценарий "${scenario.name}" удален!`);
- }
- 
--function calculateMetricsFromState(stateData) {
--const s = stateData;
--const capacity = s.workDays * s.chairs * s.hours;
--const utilization = capacity * (s.load / 100);
--const revenue = utilization * s.normoHour;
--const revenueAnnual = revenue * 12;
--
--const totalVarCosts = revenue * ((
--s.soc + s.fotDoctors + s.fotStaff +
--s.ztl + s.clinic + s.marketing
--) / 100);
--
--const opexMonthly = totalVarCosts + s.rent;
--const ebitda = revenue - opexMonthly;
--const profit = ebitda * (1 - s.tax / 100);
--const profitAnnual = profit * 12;
--
--const creditPayment = (s.payoffDebt && s.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
--const netProfitMonthly = profit - creditPayment;
--const netProfitAnnual = netProfitMonthly * 12;
--const rcpMargin = ebitda / revenue * 100 || 0;
--
--const totalInvestment = s.capex;
--
--let paybackMonths = '-', roiAnnual = '-', npv = 0;
--if (totalInvestment > 0 && netProfitMonthly > 0) {
--const rampUpMonths = 6;
--paybackMonths = Math.round(totalInvestment / netProfitMonthly) + rampUpMonths;
--roiAnnual = (netProfitAnnual / totalInvestment) * 100;
--
--npv = -totalInvestment;
--for (let i = 0; i < 60; i++) {
--let monthlyProfit = netProfitMonthly * getSeasonality(i);
--if (i < 6) monthlyProfit *= (i / 6 + 0.1);
--monthlyProfit *= Math.pow(1.02, i/12);
--npv += monthlyProfit / Math.pow(1 + s.discountRate/100, (i+1)/12);
--}
--}
--
--return {
--revenue, revenueAnnual, profit, profitAnnual, netProfitMonthly, netProfitAnnual,
--opexMonthly, creditPayment, ebitda, rcpMargin, paybackMonths, roiAnnual, npv,
--totalInvestment
--};
--}
--
--function showNotification(message, type = 'success') {
-+function calculateMetricsFromState(stateData) {
-+return buildMetricsFromState(stateData);
-+}
-+
-+function renderInsightPanels(metrics) {
-+const insights = InsightEngine.generate(metrics, state);
-+const severityClass = sev => sev === 'high' ? 'severity-high' : (sev === 'medium' ? 'severity-medium' : 'severity-low');
-+
-+document.getElementById('executiveSummary').innerHTML = `
-+<li class="executive-item"><strong>${formatMoney(metrics.netProfitMonthly)}</strong> чистой прибыли/мес при выручке <strong>${formatMoney(metrics.revenue)}</strong>.</li>
-+<li class="executive-item">ROI: <strong>${typeof metrics.roiAnnual === 'number' ? metrics.roiAnnual.toFixed(1) + '%' : '-'}</strong>, NPV: <strong>${formatMoney(metrics.npv)}</strong>.</li>
-+<li class="executive-item">Главный рычаг роста: загрузка <strong>${state.load.toFixed(1)}%</strong> и нормо-час <strong>${formatMoney(state.normoHour)}</strong>.</li>`;
-+
-+document.getElementById('aiInsightsPanel').innerHTML = insights.slice(0, 4).map(item => `
-+<li class="insight-item">
-+<span class="severity-badge ${severityClass(item.severity)}">${item.severity.toUpperCase()}</span><strong>${item.title}</strong><br>
-+<span style="color:var(--text-secondary)">${item.reason}</span><br>
-+${Object.entries(item.metricsBasis).map(([k,v]) => `<span class="metric-chip">${k}: ${v}</span>`).join('')}
-+<div style="margin-top:6px;">${item.recommendation}</div>
-+</li>`).join('');
-+
-+const leakageRows = [
-+{ label: 'Переменные расходы', value: state.soc + state.fotDoctors + state.fotStaff + state.ztl + state.clinic + state.marketing, threshold: 68 },
-+{ label: 'Доля аренды', value: metrics.revenue ? (state.rent / metrics.revenue) * 100 : 0, threshold: benchmarkConfig.maxRentShare },
-+{ label: 'Доля маркетинга', value: state.marketing, threshold: benchmarkConfig.maxMarketing }
-+];
-+document.getElementById('profitLeakagePanel').innerHTML = leakageRows.map(row => `
-+<li class="leakage-item"><strong>${row.label}</strong>: ${row.value.toFixed(1)}% <span style="color:${row.value > row.threshold ? 'var(--danger)' : 'var(--success)'}">(порог ${row.threshold}%)</span></li>`).join('');
-+
-+const baseProfit = metrics.netProfitMonthly || 1;
-+const drivers = [
-+{ name: 'Загрузка +5 п.п.', test: { ...state, load: Math.min(100, state.load + 5) } },
-+{ name: 'Нормо-час +5%', test: { ...state, normoHour: Math.round(state.normoHour * 1.05) } },
-+{ name: 'Маркетинг -2 п.п.', test: { ...state, marketing: Math.max(0, state.marketing - 2) } },
-+{ name: 'ФОТ врачей -2 п.п.', test: { ...state, fotDoctors: Math.max(0, state.fotDoctors - 2) } }
-+].map(d => ({ ...d, delta: ((calculateMetricsFromState(d.test).netProfitMonthly - metrics.netProfitMonthly) / baseProfit) * 100 })).sort((a, b) => b.delta - a.delta);
-+
-+document.getElementById('sensitivityDriversPanel').innerHTML = drivers.map(d => `
-+<li class="insight-item">
-+<div><strong>${d.name}</strong> → <span style="color:${d.delta >= 0 ? 'var(--success)' : 'var(--danger)'}">${d.delta >= 0 ? '+' : ''}${d.delta.toFixed(1)}%</span></div>
-+<div class="sensitivity-bar"><div class="sensitivity-point" style="left: calc(${Math.min(95, Math.max(5, 50 + d.delta))}% - 8px);"></div></div>
-+</li>`).join('');
-+
-+const warnings = [];
-+if (state.load < benchmarkConfig.minLoad) warnings.push(`Загрузка ${state.load}% ниже бенчмарка ${benchmarkConfig.minLoad}%`);
-+if (state.fotDoctors > benchmarkConfig.maxDoctorsFot) warnings.push(`ФОТ врачей ${state.fotDoctors}% выше нормы ${benchmarkConfig.maxDoctorsFot}%`);
-+if (state.fotStaff > benchmarkConfig.maxStaffFot) warnings.push(`ФОТ персонала ${state.fotStaff}% выше нормы ${benchmarkConfig.maxStaffFot}%`);
-+if (state.marketing > benchmarkConfig.maxMarketing) warnings.push(`Маркетинг ${state.marketing}% выше нормы ${benchmarkConfig.maxMarketing}%`);
-+if (typeof metrics.roiAnnual === 'number' && metrics.roiAnnual < benchmarkConfig.minRoiAnnual) warnings.push(`ROI ${metrics.roiAnnual.toFixed(1)}% ниже целевого ${benchmarkConfig.minRoiAnnual}%`);
-+document.getElementById('benchmarkWarnings').innerHTML = (warnings.length ? warnings : ['Отклонений от бенчмарков не обнаружено.']).map(w => `<li class="benchmark-item">${w}</li>`).join('');
-+
-+const baseline = pointA ? calculateMetricsFromState(pointA) : (scenarios[0] ? calculateMetricsFromState(scenarios[0].state) : null);
-+if (baseline) {
-+  const rows = [
-+    ['Выручка/мес', baseline.revenue, metrics.revenue, true],
-+    ['Чистая прибыль/мес', baseline.netProfitMonthly, metrics.netProfitMonthly, true],
-+    ['ROI', baseline.roiAnnual, metrics.roiAnnual, false],
-+    ['NPV', baseline.npv, metrics.npv, true]
-+  ];
-+  document.getElementById('scenarioDiffPanel').innerHTML = `<table class="scenario-diff-table"><thead><tr><th>Метрика</th><th>База</th><th>Текущий</th><th>Δ</th></tr></thead><tbody>${rows.map(r => {
-+    const diff = (r[2] || 0) - (r[1] || 0);
-+    const f = v => r[3] ? formatMoney(v) : (typeof v === 'number' ? v.toFixed(1) + '%' : '-');
-+    return `<tr><td>${r[0]}</td><td>${f(r[1])}</td><td>${f(r[2])}</td><td style="color:${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">${r[3] ? (diff >= 0 ? '+' : '') + formatMoney(diff) : (diff >= 0 ? '+' : '') + diff.toFixed(1) + '%'}</td></tr>`;
-+  }).join('')}</tbody></table>`;
-+} else {
-+  document.getElementById('scenarioDiffPanel').innerHTML = '<div style="color: var(--text-secondary);">Для сравнения зафиксируйте Точку А или сохраните первый сценарий.</div>';
-+}
-+
-+document.getElementById('changeTimeline').innerHTML = (state.changeHistory.slice(-6).reverse().map(item =>
-+  `<li class="timeline-item"><strong>${item.label}</strong> → ${item.value} <span style="color:var(--text-secondary);font-size:0.8rem;">${new Date(item.ts).toLocaleTimeString('ru-RU')}</span></li>`
-+).join('') || '<li class="timeline-item">История появится после изменения параметров.</li>');
-+}
-+
-+function showNotification(message, type = 'success') {
- const notification = document.createElement('div');
- notification.style.cssText = `
- position: fixed;
- top: 100px;
- right: 20px;
- background: ${type === 'error' ? 'var(--danger)' : 'var(--accent)'};
- color: ${type === 'error' ? '#fff' : '#000'};
- padding: 16px 24px;
- border-radius: 8px;
- font-weight: 600;
- z-index: 3000;
- animation: slideIn 0.3s ease-out;
- `;
- notification.textContent = message;
- document.body.appendChild(notification);
- 
- setTimeout(() => notification.remove(), 3000);
- }
- 
- function toggleTheme() {
- const isDark = document.body.getAttribute('data-theme') === 'light';
- document.body.setAttribute('data-theme', isDark ? '' : 'light');
- this.textContent = isDark ? '🌙' : '☀️';
- }
- </script>
+    </section>
+
+    <section class="grid charts">
+      <article class="card">
+        <h3>📈 Денежный поток (36 мес.)</h3>
+        <canvas id="cashFlowChart"></canvas>
+      </article>
+      <article class="card">
+        <h3>💵 Прибыль по сценариям</h3>
+        <canvas id="revenueVsProfitChart"></canvas>
+      </article>
+      <article class="card">
+        <h3>📦 Структура расходов</h3>
+        <canvas id="expensesChart"></canvas>
+      </article>
+    </section>
+  </div>
+
+  <script>
+    let state = {
+      workDays: 21, chairs: 5, hours: 12, load: 60, normoHour: 18000,
+      soc: 8, fotDoctors: 25, fotStaff: 10, ztl: 5, clinic: 17, marketing: 5, rent: 900000, tax: 6,
+      capex: 50000000, discountRate: 12, payoffDebt: false,
+      investorCount: 2, dividendRate: 50,
+      investors: [{name: 'Инвестор 1', share: 50}, {name: 'Инвестор 2', share: 50}],
+      netProfitMonthly: 0,
+      changeHistory: []
+    };
+
+    let scenarios = [];
+    let pointA = null;
+    let currentMetrics = null;
+
+    const CREDIT = { debt: 54000000, monthlyPayment: 1700000, threshold: 54000000 };
+    const SEASONALITY = { factors: [0.71, 1.01, 1.12, 1.03, 0.96, 1.08, 1.02, 0.99, 0.99, 0.98, 1.04, 1.06] };
+
+    // benchmarkConfig
+    const benchmarkConfig = {
+      minLoad: 65,
+      maxDoctorsFot: 28,
+      maxStaffFot: 18,
+      maxMarketing: 12,
+      maxRentShare: 18,
+      minMargin: 18,
+      minRoiAnnual: 25
+    };
+
+    // InsightEngine
+    const InsightEngine = {
+      generate(metrics, ctx) {
+        const findings = [];
+        const add = (title, reason, severity, metricsBasis, recommendation) => findings.push({ title, reason, severity, metricsBasis, recommendation });
+
+        const rentShare = metrics.revenue > 0 ? (ctx.rent / metrics.revenue) * 100 : 0;
+        if (ctx.load < benchmarkConfig.minLoad) {
+          add(
+            'Недозагрузка кресел',
+            `Факт ${ctx.load.toFixed(1)}% ниже бенчмарка ${benchmarkConfig.minLoad}%`,
+            'high',
+            { 'Загрузка': `${ctx.load.toFixed(1)}%`, 'Упущенный потенциал': formatMoney(Math.max(0, (benchmarkConfig.minLoad - ctx.load) / 100 * ctx.workDays * ctx.chairs * ctx.hours * ctx.normoHour)) },
+            'Приоритет: доходимость первички, реанимация базы, плотность расписания.'
+          );
+        }
+
+        if (rentShare > benchmarkConfig.maxRentShare) {
+          add(
+            'Высокая доля аренды',
+            `Аренда ${rentShare.toFixed(1)}% при норме до ${benchmarkConfig.maxRentShare}%`,
+            'medium',
+            { 'Аренда': formatMoney(ctx.rent), 'Доля аренды': `${rentShare.toFixed(1)}%` },
+            'Провести renegotiation договора и/или повысить выручку на кресло-час.'
+          );
+        }
+
+        if (metrics.rcpMargin < benchmarkConfig.minMargin) {
+          add(
+            'Низкая операционная маржа',
+            `R по ЧП ${metrics.rcpMargin.toFixed(1)}% ниже целевого ${benchmarkConfig.minMargin}%`,
+            'high',
+            { 'Маржа': `${metrics.rcpMargin.toFixed(1)}%`, 'Чистая прибыль': formatMoney(metrics.netProfitMonthly) },
+            'Пересмотреть mix услуг, скидочную политику, структуру переменных затрат.'
+          );
+        }
+
+        add(
+          'Сценарный рычаг роста',
+          'Модель показывает высокий вклад загрузки и нормо-часа в рост прибыли.',
+          'low',
+          { 'ROI': typeof metrics.roiAnnual === 'number' ? `${metrics.roiAnnual.toFixed(1)}%` : '-', 'NPV': formatMoney(metrics.npv) },
+          'Тестировать сценарии +5 п.п. загрузки и +5% нормо-часа как основной growth-plan.'
+        );
+
+        return findings;
+      }
+    };
+
+    const revenueInputs = [
+      ['workDays', 'Рабочие дни/мес', 20, 30],
+      ['chairs', 'Кресла', 1, 20],
+      ['hours', 'Часы/кресло', 8, 12],
+      ['load', 'Загрузка %', 0, 95],
+      ['normoHour', 'Нормо-час ₽', 8000, 100000]
+    ];
+
+    const costInputs = [
+      ['soc', 'С/С %', 6, 20],
+      ['fotDoctors', 'ФОТ врачей %', 0, 50],
+      ['fotStaff', 'ФОТ персонала %', 0, 50],
+      ['ztl', 'ЗТЛ %', 0, 40],
+      ['clinic', 'Содержание клиники %', 1, 50],
+      ['marketing', 'Маркетинг %', 1, 20],
+      ['rent', 'Аренда ₽', 60000, 3000000],
+      ['tax', 'Налог %', 0, 30],
+      ['capex', 'Вложения ₽', 0, 200000000],
+      ['discountRate', 'Ставка дисконтирования %', 8, 25],
+      ['dividendRate', 'Дивиденды %', 0, 100]
+    ];
+
+    function controlRow(id, label, min, max) {
+      return `<div class="row"><label>${label}</label><input type="range" id="${id}" min="${min}" max="${max}" value="${state[id]}"><input type="number" id="${id}Input" min="${min}" max="${max}" value="${state[id]}"></div>`;
+    }
+
+    function buildControls() {
+      document.getElementById('revenueControls').innerHTML = revenueInputs.map(v => controlRow(...v)).join('');
+      document.getElementById('costControls').innerHTML = costInputs.map(v => controlRow(...v)).join('') +
+      `<div class="row"><label>Погасить кредит при capex ≥ 54M</label><input type="checkbox" id="payoffDebt" ${state.payoffDebt ? 'checked' : ''}></div>`;
+    }
+
+    function bindInputs() {
+      [...revenueInputs, ...costInputs].forEach(([id]) => {
+        const s = document.getElementById(id);
+        const n = document.getElementById(id + 'Input');
+        s.addEventListener('input', () => {
+          state[id] = +s.value;
+          n.value = s.value;
+          recordChange(id, s.value);
+          updateAll();
+        });
+        n.addEventListener('change', () => {
+          state[id] = +n.value;
+          s.value = n.value;
+          recordChange(id, n.value);
+          updateAll();
+        });
+      });
+
+      document.getElementById('payoffDebt').addEventListener('change', (e) => {
+        state.payoffDebt = e.target.checked;
+        recordChange('payoffDebt', e.target.checked ? 'on' : 'off');
+        updateAll();
+      });
+    }
+
+    function recordChange(label, value) {
+      state.changeHistory.push({ label, value, ts: new Date().toISOString() });
+      if (state.changeHistory.length > 80) state.changeHistory = state.changeHistory.slice(-80);
+    }
+
+    function formatMoney(value) {
+      if (!isFinite(value)) return '-';
+      return new Intl.NumberFormat('ru-RU', { notation: 'compact', compactDisplay: 'short' }).format(Math.round(value)) + ' ₽';
+    }
+
+    function getSeasonality(i) { return SEASONALITY.factors[i % 12]; }
+
+    function calculateInvestorYearlyForecastForState(localState, baseNetProfitMonthly, startMonth, investorIndex) {
+      if (!localState.investors.length || baseNetProfitMonthly <= 0) return 0;
+      const totalShare = localState.investors.reduce((s, i) => s + i.share, 0);
+      if (totalShare <= 0) return 0;
+
+      let result = 0;
+      for (let i = 0; i < 12; i++) {
+        const m = startMonth + i;
+        let monthlyProfit = baseNetProfitMonthly * getSeasonality(m);
+        if (m < 6) monthlyProfit *= (m / 6 + 0.1);
+        monthlyProfit *= Math.pow(1.02, m / 12);
+        const pool = monthlyProfit * (localState.dividendRate / 100);
+        result += pool * (localState.investors[investorIndex].share / totalShare);
+      }
+      return result;
+    }
+
+    function buildMetricsFromState(s) {
+      const capacity = s.workDays * s.chairs * s.hours;
+      const utilization = capacity * (s.load / 100);
+      const revenue = utilization * s.normoHour;
+      const revenueAnnual = revenue * 12;
+
+      const totalVarCosts = revenue * ((s.soc + s.fotDoctors + s.fotStaff + s.ztl + s.clinic + s.marketing) / 100);
+      const opexMonthly = totalVarCosts + s.rent;
+      const ebitda = revenue - opexMonthly;
+      const profit = ebitda * (1 - s.tax / 100);
+      const profitAnnual = profit * 12;
+
+      const creditPayment = (s.payoffDebt && s.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
+      const netProfitMonthly = profit - creditPayment;
+      const netProfitAnnual = netProfitMonthly * 12;
+      const rcpMargin = revenue > 0 ? (ebitda / revenue) * 100 : 0;
+
+      const expenses = {
+        'С/С': revenue * (s.soc / 100), 'ФОТ врачей': revenue * (s.fotDoctors / 100), 'ФОТ персонала': revenue * (s.fotStaff / 100),
+        'ЗТЛ': revenue * (s.ztl / 100), 'Клиника': revenue * (s.clinic / 100), 'Маркетинг': revenue * (s.marketing / 100),
+        'Аренда': s.rent, 'Кредит': creditPayment
+      };
+
+      let paybackMonths = '-', roiAnnual = '-', npv = -s.capex;
+      if (s.capex > 0 && netProfitMonthly > 0) {
+        paybackMonths = Math.round(s.capex / netProfitMonthly) + 6;
+        roiAnnual = (netProfitAnnual / s.capex) * 100;
+        npv = -s.capex;
+        for (let i = 0; i < 60; i++) {
+          let monthly = netProfitMonthly * getSeasonality(i);
+          if (i < 6) monthly *= (i / 6 + 0.1);
+          monthly *= Math.pow(1.02, i / 12);
+          npv += monthly / Math.pow(1 + s.discountRate / 100, (i + 1) / 12);
+        }
+      }
+
+      const investorYearlyDividends = s.investors.map((_, i) => {
+        const y1 = calculateInvestorYearlyForecastForState(s, netProfitMonthly, 0, i);
+        const y2 = calculateInvestorYearlyForecastForState(s, netProfitMonthly, 12, i);
+        const y3 = calculateInvestorYearlyForecastForState(s, netProfitMonthly, 24, i);
+        return { forecastYear1: y1, forecastYear2: y2, forecastYear3: y3, forecastTotal: y1 + y2 + y3 };
+      });
+
+      return { revenue, revenueAnnual, opexMonthly, ebitda, profit, profitAnnual, netProfitMonthly, netProfitAnnual, rcpMargin, creditPayment, paybackMonths, roiAnnual, npv, expenses, investorYearlyDividends };
+    }
+
+    function calculateMetrics() {
+      const m = buildMetricsFromState(state);
+      state.netProfitMonthly = m.netProfitMonthly;
+      return m;
+    }
+
+    function calculateMetricsFromState(data) { return buildMetricsFromState(data); }
+
+    function updateHeaderKPI(m) {
+      const kpis = [
+        ['Выручка / мес', formatMoney(m.revenue)],
+        ['Выручка / год', formatMoney(m.revenueAnnual)],
+        ['Чистая прибыль / мес', formatMoney(m.netProfitMonthly)],
+        ['Чистая прибыль / год', formatMoney(m.netProfitAnnual)],
+        ['OPEX / мес', formatMoney(m.opexMonthly + m.creditPayment)],
+        ['Маржа', `${m.rcpMargin.toFixed(1)}%`],
+        ['Окупаемость', typeof m.paybackMonths === 'number' ? `${m.paybackMonths} мес` : '-'],
+        ['ROI', typeof m.roiAnnual === 'number' ? `${m.roiAnnual.toFixed(1)}%` : '-']
+      ];
+      document.getElementById('headerKpis').innerHTML = kpis.map(([l, v]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+    }
+
+    function renderInsightPanels(metrics) {
+      const insights = InsightEngine.generate(metrics, state);
+      const sevClass = (s) => s === 'high' ? 'high' : s === 'medium' ? 'medium' : 'low';
+
+      document.getElementById('executiveSummary').innerHTML = `
+        <li class="item">Текущая чистая прибыль: <strong>${formatMoney(metrics.netProfitMonthly)}</strong> при выручке <strong>${formatMoney(metrics.revenue)}</strong>.</li>
+        <li class="item">ROI: <strong>${typeof metrics.roiAnnual === 'number' ? metrics.roiAnnual.toFixed(1) + '%' : '-'}</strong>, NPV: <strong>${formatMoney(metrics.npv)}</strong>.</li>
+        <li class="item">Ключевой управленческий рычаг: загрузка <strong>${state.load.toFixed(1)}%</strong> и средний нормо-час <strong>${formatMoney(state.normoHour)}</strong>.</li>
+      `;
+
+      document.getElementById('aiInsightsPanel').innerHTML = insights.map(i => `
+        <li class="item">
+          <span class="badge ${sevClass(i.severity)}">${i.severity.toUpperCase()}</span> <strong>${i.title}</strong><br>
+          <span class="mini">Причина: ${i.reason}</span><br>
+          ${Object.entries(i.metricsBasis).map(([k,v]) => `<span class="chip">${k}: ${v}</span>`).join('')}
+          <div class="mini" style="margin-top:6px;">Рекомендация: ${i.recommendation}</div>
+        </li>`).join('');
+
+      const leakage = [
+        ['Переменные расходы', state.soc + state.fotDoctors + state.fotStaff + state.ztl + state.clinic + state.marketing, 68],
+        ['Доля аренды от выручки', metrics.revenue > 0 ? (state.rent / metrics.revenue) * 100 : 0, benchmarkConfig.maxRentShare],
+        ['Маркетинг', state.marketing, benchmarkConfig.maxMarketing]
+      ];
+      document.getElementById('profitLeakagePanel').innerHTML = leakage.map(([name, val, th]) =>
+        `<li class="item">${name}: <strong class="${val > th ? 'bad' : 'good'}">${val.toFixed(1)}%</strong> <span class="mini">(порог ${th}%)</span></li>`
+      ).join('');
+
+      const baseProfit = metrics.netProfitMonthly || 1;
+      const drivers = [
+        ['Загрузка +5 п.п.', { ...state, load: Math.min(100, state.load + 5) }],
+        ['Нормо-час +5%', { ...state, normoHour: Math.round(state.normoHour * 1.05) }],
+        ['Маркетинг -2 п.п.', { ...state, marketing: Math.max(0, state.marketing - 2) }],
+        ['ФОТ врачей -2 п.п.', { ...state, fotDoctors: Math.max(0, state.fotDoctors - 2) }]
+      ].map(([name, st]) => {
+        const m = calculateMetricsFromState(st);
+        const delta = ((m.netProfitMonthly - metrics.netProfitMonthly) / baseProfit) * 100;
+        return { name, delta };
+      }).sort((a,b) => b.delta - a.delta);
+
+      document.getElementById('sensitivityDriversPanel').innerHTML = drivers.map(d =>
+        `<li class="item">${d.name}: <strong class="${d.delta >= 0 ? 'good' : 'bad'}">${d.delta >= 0 ? '+' : ''}${d.delta.toFixed(1)}%</strong> к чистой прибыли</li>`
+      ).join('');
+
+      const warnings = [];
+      if (state.load < benchmarkConfig.minLoad) warnings.push(`Загрузка ${state.load}% ниже бенчмарка ${benchmarkConfig.minLoad}%`);
+      if (state.fotDoctors > benchmarkConfig.maxDoctorsFot) warnings.push(`ФОТ врачей ${state.fotDoctors}% выше нормы ${benchmarkConfig.maxDoctorsFot}%`);
+      if (state.fotStaff > benchmarkConfig.maxStaffFot) warnings.push(`ФОТ персонала ${state.fotStaff}% выше нормы ${benchmarkConfig.maxStaffFot}%`);
+      if (state.marketing > benchmarkConfig.maxMarketing) warnings.push(`Маркетинг ${state.marketing}% выше нормы ${benchmarkConfig.maxMarketing}%`);
+      if (typeof metrics.roiAnnual === 'number' && metrics.roiAnnual < benchmarkConfig.minRoiAnnual) warnings.push(`ROI ${metrics.roiAnnual.toFixed(1)}% ниже целевого ${benchmarkConfig.minRoiAnnual}%`);
+      document.getElementById('benchmarkWarnings').innerHTML = (warnings.length ? warnings : ['Отклонений от бенчмарков не обнаружено.'])
+        .map(w => `<li class="item">${w}</li>`).join('');
+
+      const baseline = pointA ? calculateMetricsFromState(pointA) : (scenarios[0] ? calculateMetricsFromState(scenarios[0].state) : null);
+      if (!baseline) {
+        document.getElementById('scenarioDiffPanel').innerHTML = '<p class="mini">Зафиксируйте Точку A или сохраните сценарий для сравнения.</p>';
+      } else {
+        const rows = [
+          ['Выручка/мес', baseline.revenue, metrics.revenue, true],
+          ['Чистая прибыль/мес', baseline.netProfitMonthly, metrics.netProfitMonthly, true],
+          ['ROI', baseline.roiAnnual, metrics.roiAnnual, false],
+          ['NPV', baseline.npv, metrics.npv, true]
+        ];
+        const cell = (v, money) => money ? formatMoney(v) : (typeof v === 'number' ? v.toFixed(1) + '%' : '-');
+        document.getElementById('scenarioDiffPanel').innerHTML = `<table><thead><tr><th>Метрика</th><th>База</th><th>Текущий</th><th>Δ</th></tr></thead><tbody>${rows.map(r => {
+          const d = (r[2] || 0) - (r[1] || 0);
+          return `<tr><td>${r[0]}</td><td>${cell(r[1], r[3])}</td><td>${cell(r[2], r[3])}</td><td class="${d >= 0 ? 'good' : 'bad'}">${r[3] ? (d >= 0 ? '+' : '') + formatMoney(d) : (d >= 0 ? '+' : '') + d.toFixed(1) + '%'}</td></tr>`;
+        }).join('')}</tbody></table>`;
+      }
+
+      const timeline = state.changeHistory.slice(-8).reverse();
+      document.getElementById('changeTimeline').innerHTML = timeline.length
+        ? timeline.map(t => `<li class="item"><strong>${t.label}</strong> → ${t.value} <span class="mini">${new Date(t.ts).toLocaleString('ru-RU')}</span></li>`).join('')
+        : '<li class="item">История появится после первого изменения параметров.</li>';
+    }
+
+    function loadScenarios() {
+      try { scenarios = JSON.parse(localStorage.getItem('stomo_scenarios') || '[]'); }
+      catch { scenarios = []; }
+      updateScenariosTable();
+    }
+    function saveScenariosStorage() { localStorage.setItem('stomo_scenarios', JSON.stringify(scenarios)); }
+
+    function updateScenariosTable() {
+      const tbody = document.getElementById('scenariosTableBody');
+      if (!scenarios.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="mini">Сценариев пока нет</td></tr>';
+        return;
+      }
+      tbody.innerHTML = scenarios.map((s, i) => {
+        const m = calculateMetricsFromState(s.state);
+        return `<tr>
+          <td>${s.name}</td><td>${formatMoney(m.revenue)}</td><td>${formatMoney(m.netProfitMonthly)}</td>
+          <td>${typeof m.roiAnnual === 'number' ? m.roiAnnual.toFixed(1) + '%' : '-'}</td>
+          <td>${new Date(s.timestamp).toLocaleString('ru-RU')}</td>
+          <td>
+            <button class="btn" onclick="loadScenario(${i})">Загрузить</button>
+            <button class="btn btn-danger" onclick="deleteScenario(${i})">Удалить</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function fixPointA() {
+      pointA = JSON.parse(JSON.stringify(state));
+      recordChange('pointA', 'фиксирована');
+      updateAll();
+    }
+
+    function saveScenario() {
+      const name = document.getElementById('scenarioName').value.trim();
+      if (!name) return;
+      scenarios.push({ name, timestamp: new Date().toISOString(), state: JSON.parse(JSON.stringify(state)) });
+      document.getElementById('scenarioName').value = '';
+      saveScenariosStorage();
+      updateScenariosTable();
+      recordChange('scenario_saved', name);
+      updateAll();
+    }
+
+    function loadScenario(i) {
+      Object.assign(state, JSON.parse(JSON.stringify(scenarios[i].state)));
+      buildControls();
+      bindInputs();
+      updateAll();
+    }
+
+    function deleteScenario(i) {
+      scenarios.splice(i, 1);
+      saveScenariosStorage();
+      updateScenariosTable();
+      updateAll();
+    }
+
+    let cashFlowChart, revenueVsProfitChart, expensesChart;
+
+    function initCharts() {
+      cashFlowChart = new Chart(document.getElementById('cashFlowChart').getContext('2d'), {
+        type: 'line', data: { labels: [], datasets: [
+          { label: 'Денежный поток, ₽', data: [], borderColor: '#2dd4bf', backgroundColor: 'rgba(45,212,191,.18)', fill: true, tension: .3 },
+          { label: 'Кредит', data: [], borderColor: '#ef4444', borderDash: [5,5], tension: .3 }
+        ] },
+        options: { responsive: true, maintainAspectRatio: true, scales: { y: { ticks: { callback: (v) => formatMoney(v) } } } }
+      });
+
+      revenueVsProfitChart = new Chart(document.getElementById('revenueVsProfitChart').getContext('2d'), {
+        type: 'line', data: { labels: [], datasets: [] },
+        options: { responsive: true, maintainAspectRatio: true, scales: { y: { ticks: { callback: (v) => formatMoney(v) } } } }
+      });
+
+      expensesChart = new Chart(document.getElementById('expensesChart').getContext('2d'), {
+        type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#f87171','#60a5fa','#facc15','#34d399','#a78bfa','#fb923c','#94a3b8','#ef4444'] }] },
+        options: { responsive: true, maintainAspectRatio: true }
+      });
+    }
+
+    function updateCharts(m) {
+      const months = Array.from({ length: 36 }, (_, i) => `М${i+1}`);
+      const flow = months.map((_, i) => {
+        let x = m.netProfitMonthly * getSeasonality(i);
+        if (i < 6) x *= (i / 6 + .1);
+        x *= Math.pow(1.02, i / 12);
+        return x;
+      });
+      const credit = months.map(() => (state.payoffDebt && state.capex >= CREDIT.threshold) ? 0 : -CREDIT.monthlyPayment);
+      cashFlowChart.data.labels = months;
+      cashFlowChart.data.datasets[0].data = flow;
+      cashFlowChart.data.datasets[1].data = credit;
+      cashFlowChart.update();
+
+      const datasets = [];
+      if (pointA) {
+        const pm = calculateMetricsFromState(pointA);
+        datasets.push({ label: 'Точка А', data: months.map((_, i) => pm.netProfitMonthly * getSeasonality(i)), borderColor: '#60a5fa', tension: .3 });
+      }
+      scenarios.forEach((s, i) => {
+        const sm = calculateMetricsFromState(s.state);
+        datasets.push({ label: s.name, data: months.map((_, j) => sm.netProfitMonthly * getSeasonality(j)), borderColor: ['#f59e0b','#ef4444','#10b981','#a78bfa'][i % 4], borderDash: [5,5], tension: .3 });
+      });
+      revenueVsProfitChart.data.labels = months;
+      revenueVsProfitChart.data.datasets = datasets;
+      revenueVsProfitChart.update();
+
+      const labels = Object.keys(m.expenses).filter((k) => m.expenses[k] > 0);
+      const vals = labels.map((k) => m.expenses[k]);
+      expensesChart.data.labels = labels;
+      expensesChart.data.datasets[0].data = vals;
+      expensesChart.update();
+    }
+
+    function updateAll() {
+      currentMetrics = calculateMetrics();
+      updateHeaderKPI(currentMetrics);
+      renderInsightPanels(currentMetrics);
+      updateScenariosTable();
+      updateCharts(currentMetrics);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      buildControls();
+      bindInputs();
+      loadScenarios();
+      initCharts();
+      updateAll();
+    });
+  </script>
+</body>
+</html>
