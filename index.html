@@ -35,6 +35,7 @@ background: var(--bg-primary);
 color: var(--text-primary);
 padding: 20px;
 min-height: 100vh;
+background-image: radial-gradient(circle at 15% 10%, rgba(0,212,170,0.1), transparent 35%), radial-gradient(circle at 85% 5%, rgba(56,189,248,0.08), transparent 30%);
 }
 .container { max-width: 1400px; margin: 0 auto; }
 
@@ -85,6 +86,16 @@ border-radius: 16px;
 padding: 24px;
 border: 1px solid var(--border);
 box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+backdrop-filter: blur(6px);
+position: relative;
+overflow: hidden;
+}
+.card::before {
+content: "";
+position: absolute;
+inset: 0;
+pointer-events: none;
+background: linear-gradient(155deg, rgba(255,255,255,0.05), transparent 30%);
 }
 .card h3 { margin-bottom: 20px; color: var(--accent); font-size: 1.3rem; }
 
@@ -123,7 +134,7 @@ padding: 16px;
 margin: 12px 0;
 }
 .btn {
-background: var(--accent);
+background: linear-gradient(135deg, var(--accent), #2dd4bf);
 color: #000;
 border: none;
 padding: 10px 20px;
@@ -140,8 +151,8 @@ color: white;
 }
 .btn-danger:hover { opacity: 0.9; }
 .btn-secondary {
-background: var(--text-secondary);
-color: #000;
+background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+color: #0f172a;
 }
 
 .invest-summary {
@@ -209,12 +220,12 @@ padding: 24px !important;
 
 .charts-grid {
 display: grid;
-grid-template-columns: repeat(2, 1fr);
+grid-template-columns: repeat(3, 1fr);
 gap: 20px;
 height: 400px;
 margin-bottom: 30px;
 }
-@media (max-width: 1400px) { .charts-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1400px) { .charts-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 768px) { .charts-grid { height: 300px; } }
 canvas { width: 100% !important; height: 100% !important; }
 
@@ -348,6 +359,71 @@ font-weight: 600;
 background: rgba(239, 68, 68, 0.1);
 color: #ef4444;
 }
+.premium-banner {
+background: radial-gradient(circle at top right, rgba(0,212,170,0.2), transparent 40%), linear-gradient(130deg, #0f172a, #111827 45%, #0b1120);
+border: 1px solid rgba(0,212,170,0.35);
+border-radius: 20px;
+padding: 22px;
+margin-bottom: 24px;
+box-shadow: 0 18px 38px rgba(0,0,0,0.28);
+}
+.banner-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; }
+.banner-subtitle { color: #9ca3af; font-size: 0.92rem; }
+.owner-dashboard-grid {
+display: grid;
+grid-template-columns: 1.1fr 0.9fr;
+gap: 20px;
+margin-bottom: 30px;
+}
+@media (max-width: 1100px) { .owner-dashboard-grid { grid-template-columns: 1fr; } }
+.ai-panel { background: linear-gradient(160deg, rgba(0,212,170,0.08), rgba(14,165,233,0.04)); }
+.section-caption { color: var(--text-secondary); margin-bottom: 12px; font-size: 0.9rem; }
+.executive-list, .insight-list, .leakage-list, .benchmark-list, .timeline-list { list-style: none; display: grid; gap: 10px; }
+.executive-item, .insight-item, .leakage-item, .benchmark-item, .timeline-item {
+padding: 12px;
+border-radius: 10px;
+border: 1px solid var(--border);
+background: rgba(15,23,42,0.35);
+}
+.severity-badge {
+display: inline-block;
+padding: 2px 10px;
+border-radius: 999px;
+font-size: 0.75rem;
+font-weight: 700;
+margin-right: 8px;
+}
+.severity-high { background: rgba(239,68,68,0.22); color: #f87171; }
+.severity-medium { background: rgba(245,158,11,0.22); color: #fbbf24; }
+.severity-low { background: rgba(16,185,129,0.2); color: #34d399; }
+.metric-chip {
+display: inline-flex;
+gap: 6px;
+padding: 4px 8px;
+border-radius: 8px;
+background: rgba(148,163,184,0.15);
+margin: 4px 6px 0 0;
+font-size: 0.8rem;
+}
+.sensitivity-bar {
+height: 10px;
+border-radius: 6px;
+background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+margin-top: 8px;
+position: relative;
+overflow: hidden;
+}
+.sensitivity-point {
+position: absolute;
+top: -3px;
+width: 16px;
+height: 16px;
+border-radius: 50%;
+border: 2px solid #fff;
+background: #111827;
+}
+.scenario-diff-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.scenario-diff-table th, .scenario-diff-table td { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; }
 </style>
   <style>body { box-sizing: border-box; }</style>
   <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
@@ -358,10 +434,52 @@ color: #ef4444;
   <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
   <div class="container">
    <div class="header-kpi">
-    <div class="kpi-title">
+   <div class="kpi-title">
      StomoLogic
     </div>
     <div class="kpi-grid" id="headerKpis"></div>
+   </div>
+   <div class="premium-banner">
+    <div class="banner-title">
+     AI Финансовый директор для стоматологической клиники
+    </div>
+    <div class="banner-subtitle">
+     B2B SaaS режим: объяснимые инсайты, риски, бенчмарк‑предупреждения, драйверы роста и журнал управленческих изменений.
+    </div>
+   </div>
+   <div class="owner-dashboard-grid">
+    <div class="card ai-panel">
+     <h3>📌 Резюме для собственника</h3>
+     <p class="section-caption">Ключевые выводы для собственника с управленческой интерпретацией.</p>
+     <ul class="executive-list" id="executiveSummary"></ul>
+    </div>
+    <div class="card">
+     <h3>🕓 История изменений и ценность подписки</h3>
+     <p class="section-caption">Последние изменения параметров + автоматический трекинг влияния на прибыль.</p>
+     <ul class="timeline-list" id="changeTimeline"></ul>
+    </div>
+   </div>
+   <div class="grid" style="margin-bottom: 30px;">
+    <div class="card ai-panel">
+     <h3>🤖 AI‑инсайты</h3>
+     <ul class="insight-list" id="aiInsightsPanel"></ul>
+    </div>
+    <div class="card">
+     <h3>🧯 Диагностика потерь прибыли</h3>
+     <ul class="leakage-list" id="profitLeakagePanel"></ul>
+    </div>
+    <div class="card">
+     <h3>🎛️ Чувствительность и драйверы роста</h3>
+     <ul class="insight-list" id="sensitivityDriversPanel"></ul>
+    </div>
+    <div class="card">
+     <h3>⚖️ Сравнение сценариев</h3>
+     <div id="scenarioDiffPanel"></div>
+    </div>
+    <div class="card" style="grid-column: 1 / -1;">
+     <h3>🚨 Предупреждения по бенчмаркам</h3>
+     <ul class="benchmark-list" id="benchmarkWarnings"></ul>
+    </div>
    </div><!-- Сценарии -->
    <div class="scenarios-panel">
     <div class="scenario-control">
@@ -571,7 +689,7 @@ color: #ef4444;
   </div>
   <div class="charts-grid">
    <div class="card">
-    <h3>📈 Cash Flow (36 месяцев)</h3>
+    <h3>📈 Денежный поток (36 месяцев)</h3>
     <div style="height: 350px;">
      <canvas id="cashFlowChart"></canvas>
     </div>
@@ -586,12 +704,6 @@ color: #ef4444;
     <h3>📊 Структура расходов</h3>
     <div style="height: 350px;">
      <canvas id="expensesChart"></canvas>
-    </div>
-   </div>
-   <div class="card">
-    <h3>🌙 Сезонность <small>(Красный&lt;1, Зеленый≥1)</small></h3>
-    <div style="height: 350px;">
-     <canvas id="seasonalityChart"></canvas>
     </div>
    </div>
   </div><!-- Модальное окно сравнения -->
@@ -610,7 +722,8 @@ rent: 2700000, marketing: 5, tax: 0, capex: 0,
 discountRate: 12, payoffDebt: false,
 investorCount: 0, dividendRate: 50,
 investors: [],
-netProfitMonthly: 0
+netProfitMonthly: 0,
+changeHistory: []
 };
 
 let scenarios = [];
@@ -628,7 +741,63 @@ monthlyPayment: 1700000,
 threshold: 54000000
 };
 
-let cashFlowChart, revenueVsProfitChart, expensesChart, seasonalityChart;
+const benchmarkConfig = {
+minLoad: 65,
+maxDoctorsFot: 28,
+maxStaffFot: 18,
+maxMarketing: 12,
+maxRentShare: 18,
+minMargin: 18,
+minRoiAnnual: 25
+};
+
+const InsightEngine = {
+generate(metrics, ctx) {
+const findings = [];
+const addFinding = ({title, reason, severity = 'low', metricsBasis = {}, recommendation = ''}) =>
+  findings.push({title, reason, severity, metricsBasis, recommendation});
+
+const rentShare = metrics.revenue > 0 ? (ctx.rent / metrics.revenue) * 100 : 0;
+if (ctx.load < benchmarkConfig.minLoad) {
+  addFinding({
+    title: 'Низкая загрузка кресел ограничивает рост EBITDA',
+    reason: `Факт ${ctx.load.toFixed(1)}% ниже бенчмарка ${benchmarkConfig.minLoad}%`,
+    severity: 'high',
+    metricsBasis: { load: `${ctx.load.toFixed(1)}%`, revenue: formatMoney(metrics.revenue) },
+    recommendation: 'Приоритет: заполнение расписания и рост первичных приёмов.'
+  });
+}
+if (rentShare > benchmarkConfig.maxRentShare) {
+  addFinding({
+    title: 'Аренда съедает операционный рычаг',
+    reason: `Доля аренды ${rentShare.toFixed(1)}% при норме до ${benchmarkConfig.maxRentShare}%`,
+    severity: 'medium',
+    metricsBasis: { rent: formatMoney(ctx.rent), rentShare: `${rentShare.toFixed(1)}%` },
+    recommendation: 'Пересмотреть договор аренды или увеличить монетизацию нормо-часа.'
+  });
+}
+if (metrics.rcpMargin < benchmarkConfig.minMargin) {
+  addFinding({
+    title: 'Маржинальность ниже целевого уровня',
+    reason: `R по ЧП ${metrics.rcpMargin.toFixed(1)}% < ${benchmarkConfig.minMargin}%`,
+    severity: 'high',
+    metricsBasis: { margin: `${metrics.rcpMargin.toFixed(1)}%`, netProfit: formatMoney(metrics.netProfitMonthly) },
+    recommendation: 'Оптимизировать долю ФОТ и себестоимость по ключевым услугам.'
+  });
+}
+const leakage = Math.max(0, (benchmarkConfig.minLoad - ctx.load) / 100 * ctx.workDays * ctx.chairs * ctx.hours * ctx.normoHour);
+addFinding({
+  title: 'Потенциал упущенной выручки',
+  reason: 'Сравнение текущей загрузки с бенчмарк-ориентиром.',
+  severity: leakage > 4000000 ? 'high' : 'medium',
+  metricsBasis: { leakageRevenue: formatMoney(leakage), targetLoad: `${benchmarkConfig.minLoad}%` },
+  recommendation: 'Усилить retention, доходимость и каналы первичного трафика.'
+});
+return findings;
+}
+};
+
+let cashFlowChart, revenueVsProfitChart, expensesChart;
 
 // Загрузить сценарии из localStorage
 function loadScenariosFromStorage() {
@@ -673,6 +842,7 @@ if (id === 'investorCount') {
   state.investors = Array(+sliderEl.value).fill().map((_,i) => state.investors[i] || {name: `Инвестор ${i+1}`, share: 100 / Math.max(1, +sliderEl.value)});
   normalizeInvestorShares();
 }
+recordChange(id, state[id]);
 updateAll();
 });
 }
@@ -690,6 +860,7 @@ if (id === 'investorCount') {
   state.investors = Array(+val).fill().map((_,i) => state.investors[i] || {name: `Инвестор ${i+1}`, share: 100 / Math.max(1, +val)});
   normalizeInvestorShares();
 }
+recordChange(id, state[id]);
 updateAll();
 });
 
@@ -703,9 +874,15 @@ const checkbox = document.getElementById('payoffDebt');
 if (checkbox) {
 checkbox.addEventListener('change', function() {
 state.payoffDebt = this.checked;
+recordChange('payoffDebt', this.checked ? 'on' : 'off');
 updateAll();
 });
 }
+}
+
+function recordChange(label, value) {
+state.changeHistory.push({ label, value, ts: new Date().toISOString() });
+if (state.changeHistory.length > 60) state.changeHistory = state.changeHistory.slice(-60);
 }
 
 function normalizeInvestorShares() {
@@ -719,94 +896,84 @@ if (Math.abs(totalShare - 100) > 0.1) {
 }
 
 function calculateMetrics() {
-const capacity = state.workDays * state.chairs * state.hours;
-const utilization = capacity * (state.load / 100);
-const revenue = utilization * state.normoHour;
+const metrics = buildMetricsFromState(state);
+state.netProfitMonthly = metrics.netProfitMonthly;
+return metrics;
+}
+
+function buildMetricsFromState(s) {
+const capacity = s.workDays * s.chairs * s.hours;
+const utilization = capacity * (s.load / 100);
+const revenue = utilization * s.normoHour;
 const revenueAnnual = revenue * 12;
-
-const totalVarCosts = revenue * ((
-state.soc + state.fotDoctors + state.fotStaff +
-state.ztl + state.clinic + state.marketing
-) / 100);
-
-const opexMonthly = totalVarCosts + state.rent;
+const totalVarCosts = revenue * ((s.soc + s.fotDoctors + s.fotStaff + s.ztl + s.clinic + s.marketing) / 100);
+const opexMonthly = totalVarCosts + s.rent;
 const ebitda = revenue - opexMonthly;
-const profitBeforeTax = ebitda;
-const profit = profitBeforeTax * (1 - state.tax / 100);
+const profit = ebitda * (1 - s.tax / 100);
 const profitAnnual = profit * 12;
-
-const creditPayment = (state.payoffDebt && state.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
+const creditPayment = (s.payoffDebt && s.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
 const netProfitMonthly = profit - creditPayment;
 const netProfitAnnual = netProfitMonthly * 12;
 const rcpMargin = ebitda / revenue * 100 || 0;
+const totalInvestment = s.capex;
+const dividendPoolMonthly = netProfitMonthly > 0 ? netProfitMonthly * (s.dividendRate / 100) : 0;
 
-const totalInvestment = state.capex;
-
-state.netProfitMonthly = netProfitMonthly;
-
-const dividendPoolMonthly = netProfitMonthly > 0 ? netProfitMonthly * (state.dividendRate / 100) : 0;
-
-const investorYearlyDividends = state.investors.map((inv, i) => ({
-  forecastYear1: netProfitMonthly > 0 ? calculateInvestorYearlyForecast(0, i) : 0,
-  forecastYear2: netProfitMonthly > 0 ? calculateInvestorYearlyForecast(12, i) : 0,
-  forecastYear3: netProfitMonthly > 0 ? calculateInvestorYearlyForecast(24, i) : 0,
-  forecastTotal: 0
-}));
-
-investorYearlyDividends.forEach((divs) => {
-  divs.forecastTotal = divs.forecastYear1 + divs.forecastYear2 + divs.forecastYear3;
-});
+let paybackMonths = '-', roiAnnual = '-', npv = 0;
+if (totalInvestment > 0 && netProfitMonthly > 0) {
+  const rampUpMonths = 6;
+  paybackMonths = Math.round(totalInvestment / netProfitMonthly) + rampUpMonths;
+  roiAnnual = (netProfitAnnual / totalInvestment) * 100;
+  npv = -totalInvestment;
+  for (let i = 0; i < 60; i++) {
+    let monthlyProfit = netProfitMonthly * getSeasonality(i);
+    if (i < 6) monthlyProfit *= (i / 6 + 0.1);
+    monthlyProfit *= Math.pow(1.02, i / 12);
+    npv += monthlyProfit / Math.pow(1 + s.discountRate / 100, (i + 1) / 12);
+  }
+}
 
 const expenses = {
-'С/С': revenue * (state.soc / 100),
-'ФОТ врачей': revenue * (state.fotDoctors / 100),
-'ФОТ персонал': revenue * (state.fotStaff / 100),
-'ЗТЛ': revenue * (state.ztl / 100),
-'Клиника': revenue * (state.clinic / 100),
-'Маркетинг': revenue * (state.marketing / 100),
-'Аренда': state.rent,
+'С/С': revenue * (s.soc / 100),
+'ФОТ врачей': revenue * (s.fotDoctors / 100),
+'ФОТ персонал': revenue * (s.fotStaff / 100),
+'ЗТЛ': revenue * (s.ztl / 100),
+'Клиника': revenue * (s.clinic / 100),
+'Маркетинг': revenue * (s.marketing / 100),
+'Аренда': s.rent,
 'Кредит': creditPayment,
 'Дивиденды': dividendPoolMonthly
 };
 
-let paybackMonths = '-', roiAnnual = '-', npv = 0;
-if (totalInvestment > 0 && netProfitMonthly > 0) {
-const rampUpMonths = 6;
-paybackMonths = Math.round(totalInvestment / netProfitMonthly) + rampUpMonths;
-roiAnnual = (netProfitAnnual / totalInvestment) * 100;
+const investorYearlyDividends = (s.investors || []).map((inv, i) => ({
+  forecastYear1: netProfitMonthly > 0 ? calculateInvestorYearlyForecastForState(s, netProfitMonthly, 0, i) : 0,
+  forecastYear2: netProfitMonthly > 0 ? calculateInvestorYearlyForecastForState(s, netProfitMonthly, 12, i) : 0,
+  forecastYear3: netProfitMonthly > 0 ? calculateInvestorYearlyForecastForState(s, netProfitMonthly, 24, i) : 0,
+  forecastTotal: 0
+}));
+investorYearlyDividends.forEach(divs => divs.forecastTotal = divs.forecastYear1 + divs.forecastYear2 + divs.forecastYear3);
 
-npv = -totalInvestment;
-for (let i = 0; i < 60; i++) {
-let monthlyProfit = netProfitMonthly * getSeasonality(i);
-if (i < 6) monthlyProfit *= (i / 6 + 0.1);
-monthlyProfit *= Math.pow(1.02, i/12);
-npv += monthlyProfit / Math.pow(1 + state.discountRate/100, (i+1)/12);
-}
+return { revenue, revenueAnnual, profit, profitAnnual, netProfitMonthly, netProfitAnnual, opexMonthly, creditPayment, ebitda, rcpMargin, paybackMonths, roiAnnual, npv, totalInvestment, expenses, dividendPoolMonthly, investorYearlyDividends };
 }
 
-return {
-revenue, revenueAnnual, profit, profitAnnual, netProfitMonthly, netProfitAnnual,
-opexMonthly, creditPayment, ebitda, rcpMargin, paybackMonths, roiAnnual, npv,
-totalInvestment, expenses, dividendPoolMonthly,
-investorYearlyDividends
-};
-}
-
-function calculateInvestorYearlyForecast(startMonth, investorIndex) {
-if (state.investors.length === 0 || state.netProfitMonthly <= 0) return 0;
-const totalInvestorShare = state.investors.reduce((sum, inv) => sum + inv.share, 0);
+function calculateInvestorYearlyForecastForState(localState, baseNetProfitMonthly, startMonth, investorIndex) {
+if ((localState.investors || []).length === 0 || baseNetProfitMonthly <= 0) return 0;
+const totalInvestorShare = localState.investors.reduce((sum, inv) => sum + inv.share, 0);
 if (totalInvestorShare <= 0) return 0;
 
 let yearlyDividends = 0;
 for (let i = 0; i < 12; i++) {
   let monthIndex = (startMonth + i) % 12;
-  let monthlyProfit = state.netProfitMonthly * getSeasonality(monthIndex);
+  let monthlyProfit = baseNetProfitMonthly * getSeasonality(monthIndex);
   if (startMonth + i < 6) monthlyProfit *= ((startMonth + i) / 6 + 0.1);
   monthlyProfit *= Math.pow(1.02, (startMonth + i)/12);
-  const monthlyDividendPool = monthlyProfit * (state.dividendRate / 100);
-  yearlyDividends += monthlyDividendPool * (state.investors[investorIndex].share / totalInvestorShare);
+  const monthlyDividendPool = monthlyProfit * (localState.dividendRate / 100);
+  yearlyDividends += monthlyDividendPool * (localState.investors[investorIndex].share / totalInvestorShare);
 }
 return yearlyDividends;
+}
+
+function calculateInvestorYearlyForecast(startMonth, investorIndex) {
+return calculateInvestorYearlyForecastForState(state, state.netProfitMonthly, startMonth, investorIndex);
 }
 
 function formatMoney(num) {
@@ -824,6 +991,7 @@ updateInvestmentDisplay(currentMetrics);
 updateCreditDisplay(currentMetrics);
 updateInvestorsDisplay(currentMetrics);
 updateCharts(currentMetrics);
+renderInsightPanels(currentMetrics);
 }
 
 function updateHeaderKPI(metrics) {
@@ -921,12 +1089,14 @@ investorsTable.innerHTML = '<tr><td colspan="6" class="investor-empty">Доба�
 
 function updateInvestorName(index, value) {
 state.investors[index].name = value;
+recordChange(`investor_${index + 1}_name`, value);
 updateAll();
 }
 
 function updateInvestorShare(index, value) {
 const newShare = Math.max(0, Math.min(100, +value));
 state.investors[index].share = newShare;
+recordChange(`investor_${index + 1}_share`, newShare.toFixed(1) + '%');
 
 // Если вводим руками, перераспределяем остальные доли пропорционально
 const otherInvestors = state.investors.filter((_, i) => i !== index);
@@ -956,7 +1126,7 @@ cashFlowChart = new Chart(cashCtx, {
 type: 'line',
 data: { labels: [], datasets: [
 {
-label: 'Cash Flow, ₽',
+label: 'Денежный поток, ₽',
 data: [],
 borderColor: '#00d4aa',
 backgroundColor: 'rgba(0,212,170,0.1)',
@@ -1034,30 +1204,6 @@ plugins: { legend: { position: 'bottom' }}
 }
 });
 
-const seasCtx = document.getElementById('seasonalityChart').getContext('2d');
-seasonalityChart = new Chart(seasCtx, {
-type: 'bar',
-data: {
-labels: SEASONALITY.labels,
-datasets: [{
-label: 'Коэф. сезонности',
-data: SEASONALITY.factors,
-backgroundColor: ctx => ctx.parsed.y < 1 ? 'rgba(255, 99, 132, 0.8)' : 'rgba(75, 192, 192, 0.8)',
-borderColor: ctx => ctx.parsed.y < 1 ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)',
-borderWidth: 2
-}]
-},
-options: {
-responsive: true,
-maintainAspectRatio: false,
-indexAxis: 'x',
-scales: {
-y: { min: 0.65, max: 1.15, ticks: { callback: v => v.toFixed(2) }},
-x: { ticks: { maxRotation: 0 }}
-},
-plugins: { legend: { display: false }}
-}
-});
 }
 
 function getSeasonality(monthIndex) {
@@ -1365,49 +1511,76 @@ showNotification(`Сценарий "${scenario.name}" удален!`);
 }
 
 function calculateMetricsFromState(stateData) {
-const s = stateData;
-const capacity = s.workDays * s.chairs * s.hours;
-const utilization = capacity * (s.load / 100);
-const revenue = utilization * s.normoHour;
-const revenueAnnual = revenue * 12;
-
-const totalVarCosts = revenue * ((
-s.soc + s.fotDoctors + s.fotStaff +
-s.ztl + s.clinic + s.marketing
-) / 100);
-
-const opexMonthly = totalVarCosts + s.rent;
-const ebitda = revenue - opexMonthly;
-const profit = ebitda * (1 - s.tax / 100);
-const profitAnnual = profit * 12;
-
-const creditPayment = (s.payoffDebt && s.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
-const netProfitMonthly = profit - creditPayment;
-const netProfitAnnual = netProfitMonthly * 12;
-const rcpMargin = ebitda / revenue * 100 || 0;
-
-const totalInvestment = s.capex;
-
-let paybackMonths = '-', roiAnnual = '-', npv = 0;
-if (totalInvestment > 0 && netProfitMonthly > 0) {
-const rampUpMonths = 6;
-paybackMonths = Math.round(totalInvestment / netProfitMonthly) + rampUpMonths;
-roiAnnual = (netProfitAnnual / totalInvestment) * 100;
-
-npv = -totalInvestment;
-for (let i = 0; i < 60; i++) {
-let monthlyProfit = netProfitMonthly * getSeasonality(i);
-if (i < 6) monthlyProfit *= (i / 6 + 0.1);
-monthlyProfit *= Math.pow(1.02, i/12);
-npv += monthlyProfit / Math.pow(1 + s.discountRate/100, (i+1)/12);
-}
+return buildMetricsFromState(stateData);
 }
 
-return {
-revenue, revenueAnnual, profit, profitAnnual, netProfitMonthly, netProfitAnnual,
-opexMonthly, creditPayment, ebitda, rcpMargin, paybackMonths, roiAnnual, npv,
-totalInvestment
-};
+function renderInsightPanels(metrics) {
+const insights = InsightEngine.generate(metrics, state);
+const severityClass = sev => sev === 'high' ? 'severity-high' : (sev === 'medium' ? 'severity-medium' : 'severity-low');
+
+document.getElementById('executiveSummary').innerHTML = `
+<li class="executive-item"><strong>${formatMoney(metrics.netProfitMonthly)}</strong> чистой прибыли/мес при выручке <strong>${formatMoney(metrics.revenue)}</strong>.</li>
+<li class="executive-item">ROI: <strong>${typeof metrics.roiAnnual === 'number' ? metrics.roiAnnual.toFixed(1) + '%' : '-'}</strong>, NPV: <strong>${formatMoney(metrics.npv)}</strong>.</li>
+<li class="executive-item">Главный рычаг роста: загрузка <strong>${state.load.toFixed(1)}%</strong> и нормо-час <strong>${formatMoney(state.normoHour)}</strong>.</li>`;
+
+document.getElementById('aiInsightsPanel').innerHTML = insights.slice(0, 4).map(item => `
+<li class="insight-item">
+<span class="severity-badge ${severityClass(item.severity)}">${item.severity.toUpperCase()}</span><strong>${item.title}</strong><br>
+<span style="color:var(--text-secondary)">${item.reason}</span><br>
+${Object.entries(item.metricsBasis).map(([k,v]) => `<span class="metric-chip">${k}: ${v}</span>`).join('')}
+<div style="margin-top:6px;">${item.recommendation}</div>
+</li>`).join('');
+
+const leakageRows = [
+{ label: 'Переменные расходы', value: state.soc + state.fotDoctors + state.fotStaff + state.ztl + state.clinic + state.marketing, threshold: 68 },
+{ label: 'Доля аренды', value: metrics.revenue ? (state.rent / metrics.revenue) * 100 : 0, threshold: benchmarkConfig.maxRentShare },
+{ label: 'Доля маркетинга', value: state.marketing, threshold: benchmarkConfig.maxMarketing }
+];
+document.getElementById('profitLeakagePanel').innerHTML = leakageRows.map(row => `
+<li class="leakage-item"><strong>${row.label}</strong>: ${row.value.toFixed(1)}% <span style="color:${row.value > row.threshold ? 'var(--danger)' : 'var(--success)'}">(порог ${row.threshold}%)</span></li>`).join('');
+
+const baseProfit = metrics.netProfitMonthly || 1;
+const drivers = [
+{ name: 'Загрузка +5 п.п.', test: { ...state, load: Math.min(100, state.load + 5) } },
+{ name: 'Нормо-час +5%', test: { ...state, normoHour: Math.round(state.normoHour * 1.05) } },
+{ name: 'Маркетинг -2 п.п.', test: { ...state, marketing: Math.max(0, state.marketing - 2) } },
+{ name: 'ФОТ врачей -2 п.п.', test: { ...state, fotDoctors: Math.max(0, state.fotDoctors - 2) } }
+].map(d => ({ ...d, delta: ((calculateMetricsFromState(d.test).netProfitMonthly - metrics.netProfitMonthly) / baseProfit) * 100 })).sort((a, b) => b.delta - a.delta);
+
+document.getElementById('sensitivityDriversPanel').innerHTML = drivers.map(d => `
+<li class="insight-item">
+<div><strong>${d.name}</strong> → <span style="color:${d.delta >= 0 ? 'var(--success)' : 'var(--danger)'}">${d.delta >= 0 ? '+' : ''}${d.delta.toFixed(1)}%</span></div>
+<div class="sensitivity-bar"><div class="sensitivity-point" style="left: calc(${Math.min(95, Math.max(5, 50 + d.delta))}% - 8px);"></div></div>
+</li>`).join('');
+
+const warnings = [];
+if (state.load < benchmarkConfig.minLoad) warnings.push(`Загрузка ${state.load}% ниже бенчмарка ${benchmarkConfig.minLoad}%`);
+if (state.fotDoctors > benchmarkConfig.maxDoctorsFot) warnings.push(`ФОТ врачей ${state.fotDoctors}% выше нормы ${benchmarkConfig.maxDoctorsFot}%`);
+if (state.fotStaff > benchmarkConfig.maxStaffFot) warnings.push(`ФОТ персонала ${state.fotStaff}% выше нормы ${benchmarkConfig.maxStaffFot}%`);
+if (state.marketing > benchmarkConfig.maxMarketing) warnings.push(`Маркетинг ${state.marketing}% выше нормы ${benchmarkConfig.maxMarketing}%`);
+if (typeof metrics.roiAnnual === 'number' && metrics.roiAnnual < benchmarkConfig.minRoiAnnual) warnings.push(`ROI ${metrics.roiAnnual.toFixed(1)}% ниже целевого ${benchmarkConfig.minRoiAnnual}%`);
+document.getElementById('benchmarkWarnings').innerHTML = (warnings.length ? warnings : ['Отклонений от бенчмарков не обнаружено.']).map(w => `<li class="benchmark-item">${w}</li>`).join('');
+
+const baseline = pointA ? calculateMetricsFromState(pointA) : (scenarios[0] ? calculateMetricsFromState(scenarios[0].state) : null);
+if (baseline) {
+  const rows = [
+    ['Выручка/мес', baseline.revenue, metrics.revenue, true],
+    ['Чистая прибыль/мес', baseline.netProfitMonthly, metrics.netProfitMonthly, true],
+    ['ROI', baseline.roiAnnual, metrics.roiAnnual, false],
+    ['NPV', baseline.npv, metrics.npv, true]
+  ];
+  document.getElementById('scenarioDiffPanel').innerHTML = `<table class="scenario-diff-table"><thead><tr><th>Метрика</th><th>База</th><th>Текущий</th><th>Δ</th></tr></thead><tbody>${rows.map(r => {
+    const diff = (r[2] || 0) - (r[1] || 0);
+    const f = v => r[3] ? formatMoney(v) : (typeof v === 'number' ? v.toFixed(1) + '%' : '-');
+    return `<tr><td>${r[0]}</td><td>${f(r[1])}</td><td>${f(r[2])}</td><td style="color:${diff >= 0 ? 'var(--success)' : 'var(--danger)'}">${r[3] ? (diff >= 0 ? '+' : '') + formatMoney(diff) : (diff >= 0 ? '+' : '') + diff.toFixed(1) + '%'}</td></tr>`;
+  }).join('')}</tbody></table>`;
+} else {
+  document.getElementById('scenarioDiffPanel').innerHTML = '<div style="color: var(--text-secondary);">Для сравнения зафиксируйте Точку А или сохраните первый сценарий.</div>';
+}
+
+document.getElementById('changeTimeline').innerHTML = (state.changeHistory.slice(-6).reverse().map(item =>
+  `<li class="timeline-item"><strong>${item.label}</strong> → ${item.value} <span style="color:var(--text-secondary);font-size:0.8rem;">${new Date(item.ts).toLocaleTimeString('ru-RU')}</span></li>`
+).join('') || '<li class="timeline-item">История появится после изменения параметров.</li>');
 }
 
 function showNotification(message, type = 'success') {
