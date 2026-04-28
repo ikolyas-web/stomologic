@@ -409,7 +409,14 @@
           buttons.forEach(b => b.classList.remove('active'));
           panels.forEach(p => p.classList.remove('active'));
           btn.classList.add('active');
-          document.getElementById(btn.dataset.tab)?.classList.add('active');
+          const panel = document.getElementById(btn.dataset.tab);
+          if (panel) panel.classList.add('active');
+          requestAnimationFrame(() => {
+            if (cashFlowChart) cashFlowChart.resize();
+            if (revenueVsProfitChart) revenueVsProfitChart.resize();
+            if (expensesChart) expensesChart.resize();
+            updateCharts(calculateMetrics());
+          });
         });
       });
     }
@@ -599,6 +606,8 @@
     function calculateMetricsFromState(data) { return buildMetricsFromState(data); }
 
     function updateHeaderKPI(m) {
+      const container = document.getElementById('headerKpis');
+      if (!container || !m) return;
       const kpis = [
         ['Выручка / мес', formatMoney(m.revenue)],
         ['Чистая прибыль / мес', formatMoney(m.netProfitMonthly)],
@@ -607,12 +616,16 @@
         ['ROI', typeof m.roiAnnual === 'number' ? `${m.roiAnnual.toFixed(1)}%` : '-'],
         ['DSCR', isFinite(m.dscr) ? m.dscr.toFixed(2) : '∞']
       ];
-      document.getElementById('headerKpis').innerHTML = kpis.map(([l, v]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+      container.innerHTML = kpis.map(([l, v]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
     }
 
     function renderCreditPanels(m) {
+      if (!m || !m.creditDetails) return;
       const s0 = m.creditDetails.schedule[0] || {};
-      document.getElementById('creditMetrics').innerHTML = [
+      const metricsNode = document.getElementById('creditMetrics');
+      const amortNode = document.getElementById('amortizationBody');
+      if (!metricsNode || !amortNode) return;
+      metricsNode.innerHTML = [
         `Остаток основного долга (нач.): <strong>${formatMoney(s0.balanceStart || 0)}</strong>`,
         `Начисленные проценты: <strong>${formatMoney(s0.interestAccrued || 0)}</strong>`,
         `Погашение процентов: <strong>${formatMoney(s0.interestPaid || 0)}</strong>`,
@@ -625,7 +638,7 @@
         `Переплата по кредиту: <strong>${formatMoney(m.creditDetails.overpayment)}</strong>`
       ].map(x => `<li class="item">${x}</li>`).join('');
 
-      document.getElementById('amortizationBody').innerHTML = m.creditDetails.schedule.slice(0, 60).map(r => `
+      amortNode.innerHTML = m.creditDetails.schedule.slice(0, 60).map(r => `
         <tr>
           <td>${r.month}</td><td>${formatMoney(r.balanceStart)}</td><td>${formatMoney(r.interestAccrued)}</td><td>${formatMoney(r.interestPaid)}</td><td>${formatMoney(r.principalPaid)}</td><td>${formatMoney(r.balanceEnd)}</td><td>${formatMoney(r.unpaidInterest)}</td><td>${formatMoney(r.actualDebtLoad)}</td>
         </tr>
@@ -751,23 +764,29 @@
     let cashFlowChart, revenueVsProfitChart, expensesChart;
 
     function initCharts() {
-      cashFlowChart = new Chart(document.getElementById('cashFlowChart').getContext('2d'), {
+      const cashNode = document.getElementById('cashFlowChart');
+      const scenarioNode = document.getElementById('revenueVsProfitChart');
+      const expenseNode = document.getElementById('expensesChart');
+      if (!cashNode || !scenarioNode || !expenseNode) return;
+
+      cashFlowChart = new Chart(cashNode.getContext('2d'), {
         type: 'line', data: { labels: [], datasets: [
           { label: 'Денежный поток, ₽', data: [], borderColor: '#2dd4bf', backgroundColor: 'rgba(45,212,191,.18)', fill: true, tension: .3 },
           { label: 'Долговая нагрузка', data: [], borderColor: '#ef4444', borderDash: [5,5], tension: .3 }
         ] }, options: { responsive: true, scales: { y: { ticks: { callback: (v) => formatMoney(v) } } } }
       });
 
-      revenueVsProfitChart = new Chart(document.getElementById('revenueVsProfitChart').getContext('2d'), {
+      revenueVsProfitChart = new Chart(scenarioNode.getContext('2d'), {
         type: 'line', data: { labels: [], datasets: [] }, options: { responsive: true, scales: { y: { ticks: { callback: (v) => formatMoney(v) } } } }
       });
 
-      expensesChart = new Chart(document.getElementById('expensesChart').getContext('2d'), {
+      expensesChart = new Chart(expenseNode.getContext('2d'), {
         type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#f87171','#60a5fa','#facc15','#34d399','#a78bfa','#fb923c','#94a3b8','#ef4444'] }] }, options: { responsive: true }
       });
     }
 
     function updateCharts(m) {
+      if (!cashFlowChart || !revenueVsProfitChart || !expensesChart || !m || !m.creditDetails) return;
       const months = Array.from({ length: 36 }, (_, i) => `М${i + 1}`);
       const flow = months.map((_, i) => {
         let x = m.netProfitMonthly * getSeasonality(i);
