@@ -162,6 +162,30 @@
           <div class="control" id="costControls"></div>
         </article>
       </section>
+      <section class="card" style="margin-bottom:16px;">
+        <h3>🏦 Инвестиции & Кредит</h3>
+        <div class="control" id="creditControls"></div>
+        <div style="margin-top:16px;">
+          <h3 style="font-size:1rem; margin-bottom:8px;">График амортизации (помесячно)</h3>
+          <div style="overflow:auto; max-height:320px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Месяц</th>
+                  <th>Нач. долг</th>
+                  <th>Начисл. %</th>
+                  <th>Погашено %</th>
+                  <th>Погашено тело</th>
+                  <th>Остаток долга</th>
+                  <th>Неоплач. %</th>
+                  <th>Факт. нагрузка</th>
+                </tr>
+              </thead>
+              <tbody id="amortizationTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </section>
 
     <section id="tab-scenarios" class="tab-panel">
@@ -210,6 +234,10 @@
         <h3>🚨 Предупреждения по бенчмаркам (BenchmarkWarnings)</h3>
         <ul id="benchmarkWarnings" class="list"></ul>
       </section>
+      <section class="card" style="margin-bottom:16px;">
+        <h3>🧠 CFO-выводы</h3>
+        <ul id="cfoInsightsPanel" class="list"></ul>
+      </section>
     </section>
 
     <section class="grid charts">
@@ -232,7 +260,19 @@
     let state = {
       workDays: 21, chairs: 5, hours: 12, load: 60, normoHour: 18000,
       soc: 8, fotDoctors: 25, fotStaff: 10, ztl: 5, clinic: 17, marketing: 5, rent: 900000, tax: 6,
-      capex: 50000000, discountRate: 12, payoffDebt: false,
+      capex: 50000000, discountRate: 12,
+      credit: {
+        amount: 54000000,
+        annualRate: 18,
+        termMonths: 60,
+        startDate: new Date().toISOString().slice(0, 10),
+        paymentType: 'annuity',
+        paymentFrequency: 'monthly',
+        customFrequencyMonths: 1,
+        actualPayment: 0,
+        prepaymentPrincipal: 0,
+        prepaymentMode: 'reduce_payment'
+      },
       investorCount: 2, dividendRate: 50,
       investors: [{name: 'Инвестор 1', share: 50}, {name: 'Инвестор 2', share: 50}],
       netProfitMonthly: 0
@@ -242,7 +282,6 @@
     let pointA = null;
     let currentMetrics = null;
 
-    const CREDIT = { debt: 54000000, monthlyPayment: 1700000, threshold: 54000000 };
     const SEASONALITY = { factors: [0.71, 1.01, 1.12, 1.03, 0.96, 1.08, 1.02, 0.99, 0.99, 0.98, 1.04, 1.06] };
 
     // benchmarkConfig
@@ -327,14 +366,45 @@
       ['dividendRate', 'Дивиденды %', 0, 100]
     ];
 
+    const creditInputs = [
+      ['amount', 'Сумма кредита ₽', 0, 300000000],
+      ['annualRate', 'Годовая ставка %', 0, 40],
+      ['termMonths', 'Срок (мес.)', 1, 240],
+      ['customFrequencyMonths', 'Произвольная частота (мес.)', 1, 24],
+      ['actualPayment', 'Фактическая оплата ₽', 0, 10000000],
+      ['prepaymentPrincipal', 'Досрочное погашение в тело ₽', 0, 10000000]
+    ];
+
     function controlRow(id, label, min, max) {
       return `<div class="row"><label>${label}</label><input type="range" id="${id}" min="${min}" max="${max}" value="${state[id]}"><input type="number" id="${id}Input" min="${min}" max="${max}" value="${state[id]}"></div>`;
     }
 
     function buildControls() {
       document.getElementById('revenueControls').innerHTML = revenueInputs.map(v => controlRow(...v)).join('');
-      document.getElementById('costControls').innerHTML = costInputs.map(v => controlRow(...v)).join('') +
-      `<div class="row"><label>Погасить кредит при capex ≥ 54M</label><input type="checkbox" id="payoffDebt" ${state.payoffDebt ? 'checked' : ''}></div>`;
+      document.getElementById('costControls').innerHTML = costInputs.map(v => controlRow(...v)).join('');
+      document.getElementById('creditControls').innerHTML = `
+        <div class="row"><label>Дата начала</label><input type="date" id="creditStartDate" value="${state.credit.startDate}" style="width:180px;"></div>
+        <div class="row"><label>Тип платежа</label>
+          <select id="creditPaymentType" style="width:180px;background:rgba(15,23,42,.7);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;">
+            <option value="annuity" ${state.credit.paymentType === 'annuity' ? 'selected' : ''}>Аннуитет</option>
+            <option value="differentiated" ${state.credit.paymentType === 'differentiated' ? 'selected' : ''}>Дифференцированный</option>
+          </select>
+        </div>
+        <div class="row"><label>Периодичность оплаты</label>
+          <select id="creditFrequency" style="width:180px;background:rgba(15,23,42,.7);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;">
+            <option value="monthly" ${state.credit.paymentFrequency === 'monthly' ? 'selected' : ''}>Ежемесячно</option>
+            <option value="quarterly" ${state.credit.paymentFrequency === 'quarterly' ? 'selected' : ''}>Раз в 3 месяца</option>
+            <option value="custom" ${state.credit.paymentFrequency === 'custom' ? 'selected' : ''}>Произвольная</option>
+          </select>
+        </div>
+        <div class="row"><label>Режим досрочного погашения</label>
+          <select id="creditPrepayMode" style="width:180px;background:rgba(15,23,42,.7);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;">
+            <option value="reduce_payment" ${state.credit.prepaymentMode === 'reduce_payment' ? 'selected' : ''}>Уменьшить платеж</option>
+            <option value="reduce_term" ${state.credit.prepaymentMode === 'reduce_term' ? 'selected' : ''}>Уменьшить срок</option>
+          </select>
+        </div>
+        ${creditInputs.map(([id, label, min, max]) => `<div class=\"row\"><label>${label}</label><input type=\"range\" id=\"credit_${id}\" min=\"${min}\" max=\"${max}\" value=\"${state.credit[id]}\"><input type=\"number\" id=\"credit_${id}Input\" min=\"${min}\" max=\"${max}\" value=\"${state.credit[id]}\"></div>`).join('')}
+      `;
     }
 
     function bindInputs() {
@@ -355,9 +425,35 @@
         });
       });
 
-      document.getElementById('payoffDebt').addEventListener('change', (e) => {
-        state.payoffDebt = e.target.checked;
-        recordChange('payoffDebt', e.target.checked ? 'on' : 'off');
+      creditInputs.forEach(([id]) => {
+        const s = document.getElementById(`credit_${id}`);
+        const n = document.getElementById(`credit_${id}Input`);
+        s.addEventListener('input', () => {
+          state.credit[id] = +s.value;
+          n.value = s.value;
+          updateAll();
+        });
+        n.addEventListener('change', () => {
+          state.credit[id] = +n.value;
+          s.value = n.value;
+          updateAll();
+        });
+      });
+
+      document.getElementById('creditStartDate').addEventListener('change', (e) => {
+        state.credit.startDate = e.target.value;
+        updateAll();
+      });
+      document.getElementById('creditPaymentType').addEventListener('change', (e) => {
+        state.credit.paymentType = e.target.value;
+        updateAll();
+      });
+      document.getElementById('creditFrequency').addEventListener('change', (e) => {
+        state.credit.paymentFrequency = e.target.value;
+        updateAll();
+      });
+      document.getElementById('creditPrepayMode').addEventListener('change', (e) => {
+        state.credit.prepaymentMode = e.target.value;
         updateAll();
       });
     }
@@ -384,6 +480,101 @@
     }
 
     function getSeasonality(i) { return SEASONALITY.factors[i % 12]; }
+
+    function getFrequencyMonths(credit) {
+      if (credit.paymentFrequency === 'quarterly') return 3;
+      if (credit.paymentFrequency === 'custom') return Math.max(1, +credit.customFrequencyMonths || 1);
+      return 1;
+    }
+
+    function monthDiffFromNow(startDateStr) {
+      const now = new Date();
+      const start = new Date(startDateStr || now.toISOString().slice(0, 10));
+      return (start.getFullYear() - now.getFullYear()) * 12 + (start.getMonth() - now.getMonth());
+    }
+
+    function simulateCredit(credit, horizonMonths = 120) {
+      const originalPrincipal = Math.max(0, +credit.amount || 0);
+      const annualRate = Math.max(0, +credit.annualRate || 0);
+      const monthlyRate = annualRate / 12 / 100;
+      const initialTerm = Math.max(1, +credit.termMonths || 1);
+      const freq = getFrequencyMonths(credit);
+      const startOffset = monthDiffFromNow(credit.startDate);
+      const periodRate = Math.pow(1 + monthlyRate, freq) - 1;
+
+      let principal = originalPrincipal;
+      let unpaidInterest = 0;
+      let totalInterestAccrued = 0;
+      let totalInterestPaid = 0;
+      let totalPaid = 0;
+      let closeMonth = null;
+
+      const schedule = [];
+      for (let month = 0; month < horizonMonths; month++) {
+        const isStarted = month >= startOffset;
+        const isDue = isStarted && ((month - startOffset) % freq === 0);
+        let remainingPeriods = Math.max(1, Math.ceil((initialTerm - Math.max(0, month - startOffset + 1)) / freq));
+
+        let interestAccrued = 0;
+        if (principal > 0 && isStarted) {
+          interestAccrued = principal * monthlyRate;
+          unpaidInterest += interestAccrued;
+          totalInterestAccrued += interestAccrued;
+        }
+
+        let scheduledPayment = 0;
+        let interestPaid = 0;
+        let principalPaid = 0;
+        let actualDebtLoad = 0;
+
+        if (principal > 0 && isDue) {
+          if (credit.paymentType === 'annuity') {
+            if (periodRate === 0) {
+              scheduledPayment = principal / remainingPeriods;
+            } else {
+              scheduledPayment = principal * periodRate / (1 - Math.pow(1 + periodRate, -remainingPeriods));
+            }
+          } else {
+            const principalChunk = principal / remainingPeriods;
+            const periodInterest = principal * periodRate;
+            scheduledPayment = principalChunk + periodInterest;
+          }
+
+          const factPayment = (+credit.actualPayment || 0) > 0 ? +credit.actualPayment : scheduledPayment;
+          interestPaid = Math.min(unpaidInterest, factPayment);
+          unpaidInterest -= interestPaid;
+          principalPaid = Math.max(0, factPayment - interestPaid);
+
+          const prepay = Math.max(0, +credit.prepaymentPrincipal || 0);
+          principalPaid += prepay;
+
+          principalPaid = Math.min(principal, principalPaid);
+          principal -= principalPaid;
+          actualDebtLoad = factPayment + prepay;
+          totalInterestPaid += interestPaid;
+          totalPaid += actualDebtLoad;
+        }
+
+        if (principal <= 1 && unpaidInterest <= 1 && closeMonth === null && isStarted) {
+          closeMonth = month + 1;
+        }
+
+        schedule.push({
+          month: month + 1,
+          balanceStart: Math.max(0, principal + principalPaid),
+          interestAccrued,
+          interestPaid,
+          principalPaid,
+          balanceEnd: Math.max(0, principal),
+          unpaidInterest: Math.max(0, unpaidInterest),
+          actualDebtLoad,
+          scheduledPayment
+        });
+      }
+
+      const overpayment = Math.max(0, totalPaid - originalPrincipal);
+      return { schedule, totalInterestAccrued, totalInterestPaid, totalPaid, overpayment, closeMonth };
+    }
 
     function calculateInvestorYearlyForecastForState(localState, baseNetProfitMonthly, startMonth, investorIndex) {
       if (!localState.investors.length || baseNetProfitMonthly <= 0) return 0;
@@ -414,16 +605,23 @@
       const profit = ebitda * (1 - s.tax / 100);
       const profitAnnual = profit * 12;
 
-      const creditPayment = (s.payoffDebt && s.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
+      const creditCalc = simulateCredit(s.credit, 120);
+      const firstMonthDebt = creditCalc.schedule[0] || { actualDebtLoad: 0 };
+      const creditPayment = firstMonthDebt.actualDebtLoad;
       const netProfitMonthly = profit - creditPayment;
       const netProfitAnnual = netProfitMonthly * 12;
       const rcpMargin = revenue > 0 ? (ebitda / revenue) * 100 : 0;
+      const operatingCashFlow = Math.max(0, ebitda * (1 - s.tax / 100));
+      const dscr = creditPayment > 0 ? operatingCashFlow / creditPayment : Infinity;
+      const debtShareInOpCF = operatingCashFlow > 0 ? (creditPayment / operatingCashFlow) * 100 : 0;
 
       const expenses = {
         'С/С': revenue * (s.soc / 100), 'ФОТ врачей': revenue * (s.fotDoctors / 100), 'ФОТ персонала': revenue * (s.fotStaff / 100),
         'ЗТЛ': revenue * (s.ztl / 100), 'Клиника': revenue * (s.clinic / 100), 'Маркетинг': revenue * (s.marketing / 100),
         'Аренда': s.rent, 'Кредит': creditPayment
       };
+      const variableCosts = revenue * ((s.soc + s.fotDoctors + s.fotStaff + s.ztl + s.clinic + s.marketing) / 100);
+      const fixedCosts = s.rent + creditPayment;
 
       let paybackMonths = '-', roiAnnual = '-', npv = -s.capex;
       if (s.capex > 0 && netProfitMonthly > 0) {
@@ -445,7 +643,15 @@
         return { forecastYear1: y1, forecastYear2: y2, forecastYear3: y3, forecastTotal: y1 + y2 + y3 };
       });
 
-      return { revenue, revenueAnnual, opexMonthly, ebitda, profit, profitAnnual, netProfitMonthly, netProfitAnnual, rcpMargin, creditPayment, paybackMonths, roiAnnual, npv, expenses, investorYearlyDividends };
+      const baselineCredit = simulateCredit({ ...s.credit, prepaymentPrincipal: 0 }, 120);
+      const interestSavings = Math.max(0, baselineCredit.totalInterestPaid - creditCalc.totalInterestPaid);
+
+      return {
+        revenue, revenueAnnual, opexMonthly, ebitda, profit, profitAnnual, netProfitMonthly, netProfitAnnual, rcpMargin,
+        creditPayment, paybackMonths, roiAnnual, npv, expenses, investorYearlyDividends, variableCosts, fixedCosts,
+        dscr, debtShareInOpCF, interestSavings, creditCloseMonth: creditCalc.closeMonth, creditOverpayment: creditCalc.overpayment,
+        creditDetails: creditCalc, operatingCashFlow
+      };
     }
 
     function calculateMetrics() {
@@ -464,6 +670,7 @@
         ['Чистая прибыль / год', formatMoney(m.netProfitAnnual)],
         ['OPEX / мес', formatMoney(m.opexMonthly + m.creditPayment)],
         ['Маржа', `${m.rcpMargin.toFixed(1)}%`],
+        ['DSCR', isFinite(m.dscr) ? m.dscr.toFixed(2) : '∞'],
         ['Окупаемость', typeof m.paybackMonths === 'number' ? `${m.paybackMonths} мес` : '-'],
         ['ROI', typeof m.roiAnnual === 'number' ? `${m.roiAnnual.toFixed(1)}%` : '-']
       ];
@@ -477,6 +684,7 @@
       document.getElementById('executiveSummary').innerHTML = `
         <li class="item">Текущая чистая прибыль: <strong>${formatMoney(metrics.netProfitMonthly)}</strong> при выручке <strong>${formatMoney(metrics.revenue)}</strong>.</li>
         <li class="item">ROI: <strong>${typeof metrics.roiAnnual === 'number' ? metrics.roiAnnual.toFixed(1) + '%' : '-'}</strong>, NPV: <strong>${formatMoney(metrics.npv)}</strong>.</li>
+        <li class="item">Постоянные расходы: <strong>${formatMoney(metrics.fixedCosts)}</strong>, переменные: <strong>${formatMoney(metrics.variableCosts)}</strong>.</li>
         <li class="item">Ключевой управленческий рычаг: загрузка <strong>${state.load.toFixed(1)}%</strong> и средний нормо-час <strong>${formatMoney(state.normoHour)}</strong>.</li>
       `;
 
@@ -521,6 +729,20 @@
       if (typeof metrics.roiAnnual === 'number' && metrics.roiAnnual < benchmarkConfig.minRoiAnnual) warnings.push(`ROI ${metrics.roiAnnual.toFixed(1)}% ниже целевого ${benchmarkConfig.minRoiAnnual}%`);
       document.getElementById('benchmarkWarnings').innerHTML = (warnings.length ? warnings : ['Отклонений от бенчмарков не обнаружено.'])
         .map(w => `<li class="item">${w}</li>`).join('');
+
+      const cfoFlags = [];
+      if (metrics.dscr < 1) cfoFlags.push('<span class="bad">🔴 DSCR < 1: кредитная нагрузка критична.</span>');
+      else if (metrics.dscr >= 1 && metrics.dscr < 1.2) cfoFlags.push('<span style="color:#f59e0b;">🟠 DSCR 1–1.2: зона риска по обслуживанию долга.</span>');
+      if (metrics.npv < 0) cfoFlags.push('<span class="bad">🔴 NPV ниже 0: проект финансово неэффективен.</span>');
+      if (typeof metrics.paybackMonths === 'number' && metrics.paybackMonths > 36) cfoFlags.push('<span style="color:#f59e0b;">🟠 Окупаемость более 36 месяцев: долгий возврат инвестиций.</span>');
+      if (state.dividendRate > 0 && metrics.netProfitMonthly < 0) cfoFlags.push('<span class="bad">🔴 Выплата дивидендов при отрицательном Cash Flow недопустима.</span>');
+
+      cfoFlags.push(`DSCR: <strong>${isFinite(metrics.dscr) ? metrics.dscr.toFixed(2) : '∞'}</strong>; Платеж/OCF: <strong>${metrics.debtShareInOpCF.toFixed(1)}%</strong>.`);
+      cfoFlags.push(`Экономия на процентах от досрочного погашения: <strong>${formatMoney(metrics.interestSavings)}</strong>.`);
+      cfoFlags.push(`Фактический срок закрытия кредита: <strong>${metrics.creditCloseMonth ? metrics.creditCloseMonth + ' мес.' : 'не закрыт в горизонте'}</strong>; Переплата: <strong>${formatMoney(metrics.creditOverpayment)}</strong>.`);
+      cfoFlags.push(`Старт кредита: <strong>${state.credit.startDate || '-'}</strong>; текущая долговая нагрузка: <strong>${formatMoney(metrics.creditDetails.schedule[0]?.actualDebtLoad || 0)}</strong>.`);
+      cfoFlags.push(`Текущие детали долга — начисл. проценты: <strong>${formatMoney(metrics.creditDetails.schedule[0]?.interestAccrued || 0)}</strong>, погашение процентов: <strong>${formatMoney(metrics.creditDetails.schedule[0]?.interestPaid || 0)}</strong>, погашение тела: <strong>${formatMoney(metrics.creditDetails.schedule[0]?.principalPaid || 0)}</strong>, остаток: <strong>${formatMoney(metrics.creditDetails.schedule[0]?.balanceEnd || 0)}</strong>, неоплаченные проценты: <strong>${formatMoney(metrics.creditDetails.schedule[0]?.unpaidInterest || 0)}</strong>.`);
+      document.getElementById('cfoInsightsPanel').innerHTML = cfoFlags.map(x => `<li class="item">${x}</li>`).join('');
 
       const baseline = pointA ? calculateMetricsFromState(pointA) : (scenarios[0] ? calculateMetricsFromState(scenarios[0].state) : null);
       if (!baseline) {
@@ -629,7 +851,7 @@
         x *= Math.pow(1.02, i / 12);
         return x;
       });
-      const credit = months.map(() => (state.payoffDebt && state.capex >= CREDIT.threshold) ? 0 : -CREDIT.monthlyPayment);
+      const credit = months.map((_, i) => -(m.creditDetails.schedule[i]?.actualDebtLoad || 0));
       cashFlowChart.data.labels = months;
       cashFlowChart.data.datasets[0].data = flow;
       cashFlowChart.data.datasets[1].data = credit;
@@ -655,12 +877,30 @@
       expensesChart.update();
     }
 
+    function renderAmortizationTable(metrics) {
+      const tbody = document.getElementById('amortizationTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = metrics.creditDetails.schedule.slice(0, 60).map(r => `
+        <tr>
+          <td>${r.month}</td>
+          <td>${formatMoney(r.balanceStart)}</td>
+          <td>${formatMoney(r.interestAccrued)}</td>
+          <td>${formatMoney(r.interestPaid)}</td>
+          <td>${formatMoney(r.principalPaid)}</td>
+          <td>${formatMoney(r.balanceEnd)}</td>
+          <td>${formatMoney(r.unpaidInterest)}</td>
+          <td>${formatMoney(r.actualDebtLoad)}</td>
+        </tr>
+      `).join('');
+    }
+
     function updateAll() {
       currentMetrics = calculateMetrics();
       updateHeaderKPI(currentMetrics);
       renderInsightPanels(currentMetrics);
       updateScenariosTable();
       updateCharts(currentMetrics);
+      renderAmortizationTable(currentMetrics);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
