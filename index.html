@@ -8,7 +8,6 @@
   <style>
     :root {
       --bg: #060b14;
-      --bg-soft: #0c1320;
       --card: rgba(17, 25, 40, 0.85);
       --line: rgba(148, 163, 184, 0.18);
       --text: #f8fafc;
@@ -16,7 +15,6 @@
       --accent: #2dd4bf;
       --accent-2: #38bdf8;
       --success: #10b981;
-      --warn: #f59e0b;
       --danger: #ef4444;
     }
     * { box-sizing: border-box; }
@@ -27,7 +25,7 @@
       background:
         radial-gradient(circle at 10% 5%, rgba(45,212,191,.22), transparent 30%),
         radial-gradient(circle at 90% 0%, rgba(56,189,248,.18), transparent 30%),
-        var(--bg);
+        #060b14;
     }
     .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
     .hero {
@@ -35,7 +33,6 @@
       border: 1px solid var(--line);
       border-radius: 20px;
       padding: 24px;
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
       margin-bottom: 20px;
     }
     .hero h1 { margin: 0; font-size: 2rem; }
@@ -47,20 +44,10 @@
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 12px;
     }
-    .kpi {
-      border: 1px solid var(--line);
-      background: rgba(15,23,42,.55);
-      border-radius: 12px;
-      padding: 12px;
-    }
-    .kpi .v { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+    .kpi { border: 1px solid var(--line); background: rgba(15,23,42,.55); border-radius: 12px; padding: 12px; }
+    .kpi .v { font-weight: 800; font-size: 1.1rem; color: var(--accent); }
     .kpi .l { margin-top: 4px; color: var(--muted); font-size: .82rem; }
 
-    .grid { display: grid; gap: 16px; }
-    .dashboard { grid-template-columns: 1.2fr .8fr; margin-bottom: 16px; }
-    .panels { grid-template-columns: repeat(2, 1fr); margin-bottom: 16px; }
-    .controls { grid-template-columns: repeat(2, 1fr); margin-bottom: 16px; }
-    .charts { grid-template-columns: repeat(3, 1fr); margin-bottom: 16px; }
     .tabs { display: flex; gap: 10px; margin: 18px 0; flex-wrap: wrap; }
     .tab-btn {
       border: 1px solid var(--line);
@@ -75,36 +62,32 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
+    .grid { display: grid; gap: 16px; }
+    .controls { grid-template-columns: repeat(2, 1fr); }
+    .panels { grid-template-columns: repeat(2, 1fr); }
+    .charts-2 { grid-template-columns: repeat(2, 1fr); }
+
     .card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 16px;
       padding: 18px;
       backdrop-filter: blur(8px);
-      box-shadow: 0 8px 26px rgba(0,0,0,.25);
     }
     .card h3 { margin: 0 0 12px; color: var(--accent); }
-    .caption { color: var(--muted); font-size: .9rem; margin-bottom: 10px; }
 
     .list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
-    .item {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(2,6,23,.45);
-      padding: 10px;
-      line-height: 1.35;
-    }
+    .item { border: 1px solid var(--line); border-radius: 10px; background: rgba(2,6,23,.45); padding: 10px; line-height: 1.35; }
     .badge { padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 700; }
     .high { background: rgba(239,68,68,.2); color: #fca5a5; }
     .medium { background: rgba(245,158,11,.2); color: #fcd34d; }
     .low { background: rgba(16,185,129,.2); color: #86efac; }
 
-    .control { display: grid; gap: 8px; margin-bottom: 10px; }
-    .row { display: flex; gap: 10px; align-items: center; }
-    .row label { min-width: 180px; color: var(--muted); font-size: .9rem; }
+    .row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .row label { min-width: 190px; color: var(--muted); font-size: .9rem; }
     input[type="range"] { flex: 1; }
-    input[type="number"], input[type="text"] {
-      width: 110px;
+    input[type="number"], input[type="text"], input[type="date"], select {
+      min-width: 120px;
       background: rgba(15,23,42,.7);
       color: var(--text);
       border: 1px solid var(--line);
@@ -132,8 +115,8 @@
     .bad { color: var(--danger); }
 
     @media (max-width: 1200px) {
-      .dashboard, .panels, .controls, .charts { grid-template-columns: 1fr; }
-      .row label { min-width: 140px; }
+      .controls, .panels, .charts-2 { grid-template-columns: 1fr; }
+      .row { flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -148,18 +131,32 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="tab-inputs">1. Вводные данные</button>
       <button class="tab-btn" data-tab="tab-scenarios">2. Сценарии</button>
-      <button class="tab-btn" data-tab="tab-insights">3. Выводы</button>
+      <button class="tab-btn" data-tab="tab-credit">3. Кредит</button>
+      <button class="tab-btn" data-tab="tab-investments">4. Инвестиции</button>
+      <button class="tab-btn" data-tab="tab-seasonality">5. Сезонность</button>
+      <button class="tab-btn" data-tab="tab-taxes">6. Налоги</button>
+      <button class="tab-btn" data-tab="tab-insights">7. Выводы</button>
     </div>
 
     <section id="tab-inputs" class="tab-panel active">
-      <section class="grid controls">
+      <section class="grid controls" style="margin-bottom:16px;">
         <article class="card">
           <h3>📊 Параметры выручки</h3>
-          <div class="control" id="revenueControls"></div>
+          <div id="revenueControls"></div>
         </article>
         <article class="card">
           <h3>💰 Расходы и инвестиции</h3>
-          <div class="control" id="costControls"></div>
+          <div id="costControls"></div>
+        </article>
+      </section>
+      <section class="grid charts-2">
+        <article class="card">
+          <h3>📈 Денежный поток (36 мес.)</h3>
+          <canvas id="cashFlowChart"></canvas>
+        </article>
+        <article class="card">
+          <h3>📦 Структура расходов</h3>
+          <canvas id="expensesChart"></canvas>
         </article>
       </section>
     </section>
@@ -173,79 +170,104 @@
           <button class="btn" onclick="saveScenario()">Сохранить сценарий</button>
         </div>
         <table>
-          <thead>
-            <tr>
-              <th>Название</th><th>Выручка/мес</th><th>Чистая прибыль/мес</th><th>ROI</th><th>Дата</th><th>Действия</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Название</th><th>Выручка/мес</th><th>Чистая прибыль/мес</th><th>ROI</th><th>Дата</th><th>Действия</th></tr></thead>
           <tbody id="scenariosTableBody"></tbody>
         </table>
       </section>
-      <section class="card">
+      <section class="card" style="margin-bottom:16px;">
         <h3>⚖️ Сравнение сценариев (ScenarioDiffPanel)</h3>
         <div id="scenarioDiffPanel"></div>
+      </section>
+      <section class="card">
+        <h3>💵 Прибыль по сценариям</h3>
+        <canvas id="revenueVsProfitChart"></canvas>
+      </section>
+    </section>
+
+    <section id="tab-credit" class="tab-panel">
+      <section class="card" style="margin-bottom:16px;">
+        <h3>🏦 Кредитный модуль</h3>
+        <div id="creditControls"></div>
+      </section>
+      <section class="card" style="margin-bottom:16px;">
+        <h3>📌 Показатели кредита</h3>
+        <ul id="creditMetrics" class="list"></ul>
+      </section>
+      <section class="card">
+        <h3>🧾 Амортизация (по месяцам)</h3>
+        <div style="overflow:auto; max-height:360px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Месяц</th><th>Остаток осн. долга (нач.)</th><th>Начисленные %</th><th>Погашено %</th><th>Погашено тела</th><th>Остаток долга (кон.)</th><th>Накопл. неоплач. %</th><th>Факт. долговая нагрузка</th>
+              </tr>
+            </thead>
+            <tbody id="amortizationBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section id="tab-investments" class="tab-panel">
+      <section class="card">
+        <h3>💼 Инвестиции</h3>
+        <div id="investmentsControls"></div>
+      </section>
+    </section>
+
+    <section id="tab-seasonality" class="tab-panel">
+      <section class="card">
+        <h3>📆 Сезонность</h3>
+        <p class="mini">Коэффициенты влияют на прогнозный денежный поток и NPV.</p>
+        <div id="seasonalityControls" class="grid controls"></div>
+        <div class="row" style="margin-top:8px;"><button class="btn" onclick="resetSeasonality()">Сбросить сезонность</button></div>
+      </section>
+    </section>
+
+    <section id="tab-taxes" class="tab-panel">
+      <section class="card">
+        <h3>🧮 Налоги</h3>
+        <div id="taxControls"></div>
       </section>
     </section>
 
     <section id="tab-insights" class="tab-panel">
       <section class="grid panels">
-        <article class="card">
-          <h3>📌 Резюме для собственника (ExecutiveSummary)</h3>
-          <ul id="executiveSummary" class="list"></ul>
-        </article>
-        <article class="card">
-          <h3>🤖 AI-инсайты (AIInsightsPanel)</h3>
-          <ul id="aiInsightsPanel" class="list"></ul>
-        </article>
-        <article class="card">
-          <h3>🧯 Потери прибыли (ProfitLeakagePanel)</h3>
-          <ul id="profitLeakagePanel" class="list"></ul>
-        </article>
-        <article class="card">
-          <h3>🎛️ Чувствительность и драйверы роста (SensitivityDriversPanel)</h3>
-          <ul id="sensitivityDriversPanel" class="list"></ul>
-        </article>
+        <article class="card"><h3>📌 Резюме для собственника</h3><ul id="executiveSummary" class="list"></ul></article>
+        <article class="card"><h3>🤖 AI-инсайты</h3><ul id="aiInsightsPanel" class="list"></ul></article>
+        <article class="card"><h3>🧯 Потери прибыли</h3><ul id="profitLeakagePanel" class="list"></ul></article>
+        <article class="card"><h3>🎛️ Чувствительность и драйверы роста</h3><ul id="sensitivityDriversPanel" class="list"></ul></article>
       </section>
-      <section class="card" style="margin-bottom:16px;">
-        <h3>🚨 Предупреждения по бенчмаркам (BenchmarkWarnings)</h3>
-        <ul id="benchmarkWarnings" class="list"></ul>
-      </section>
-    </section>
-
-    <section class="grid charts">
-      <article class="card">
-        <h3>📈 Денежный поток (36 мес.)</h3>
-        <canvas id="cashFlowChart"></canvas>
-      </article>
-      <article class="card">
-        <h3>💵 Прибыль по сценариям</h3>
-        <canvas id="revenueVsProfitChart"></canvas>
-      </article>
-      <article class="card">
-        <h3>📦 Структура расходов</h3>
-        <canvas id="expensesChart"></canvas>
-      </article>
+      <section class="card" style="margin-top:16px;"><h3>🚨 Предупреждения по бенчмаркам</h3><ul id="benchmarkWarnings" class="list"></ul></section>
     </section>
   </div>
 
   <script>
+    const DEFAULT_SEASONALITY = [0.71, 1.01, 1.12, 1.03, 0.96, 1.08, 1.02, 0.99, 0.99, 0.98, 1.04, 1.06];
+
     let state = {
       workDays: 21, chairs: 5, hours: 12, load: 60, normoHour: 18000,
-      soc: 8, fotDoctors: 25, fotStaff: 10, ztl: 5, clinic: 17, marketing: 5, rent: 900000, tax: 6,
-      capex: 50000000, discountRate: 12, payoffDebt: false,
-      investorCount: 2, dividendRate: 50,
+      soc: 8, fotDoctors: 25, fotStaff: 10, ztl: 5, clinic: 17, marketing: 5, rent: 900000,
+      tax: 6, capex: 50000000, discountRate: 12, dividendRate: 50,
+      credit: {
+        amount: 54000000,
+        annualRate: 18,
+        termMonths: 60,
+        startDate: new Date().toISOString().slice(0, 10),
+        paymentType: 'annuity', // annuity | differentiated
+        paymentFrequency: 'monthly', // monthly | quarterly | custom
+        customFrequencyMonths: 1,
+        actualPayment: 0,
+        prepaymentPrincipal: 0,
+        prepaymentMode: 'reduce_payment' // reduce_payment | reduce_term
+      },
       investors: [{name: 'Инвестор 1', share: 50}, {name: 'Инвестор 2', share: 50}],
-      netProfitMonthly: 0
+      seasonality: [...DEFAULT_SEASONALITY]
     };
 
     let scenarios = [];
     let pointA = null;
-    let currentMetrics = null;
 
-    const CREDIT = { debt: 54000000, monthlyPayment: 1700000, threshold: 54000000 };
-    const SEASONALITY = { factors: [0.71, 1.01, 1.12, 1.03, 0.96, 1.08, 1.02, 0.99, 0.99, 0.98, 1.04, 1.06] };
-
-    // benchmarkConfig
     const benchmarkConfig = {
       minLoad: 65,
       maxDoctorsFot: 28,
@@ -256,50 +278,28 @@
       minRoiAnnual: 25
     };
 
-    // InsightEngine
     const InsightEngine = {
       generate(metrics, ctx) {
         const findings = [];
         const add = (title, reason, severity, metricsBasis, recommendation) => findings.push({ title, reason, severity, metricsBasis, recommendation });
-
         const rentShare = metrics.revenue > 0 ? (ctx.rent / metrics.revenue) * 100 : 0;
+
         if (ctx.load < benchmarkConfig.minLoad) {
-          add(
-            'Недозагрузка кресел',
-            `Факт ${ctx.load.toFixed(1)}% ниже бенчмарка ${benchmarkConfig.minLoad}%`,
-            'high',
+          add('Недозагрузка кресел', `Факт ${ctx.load.toFixed(1)}% ниже бенчмарка ${benchmarkConfig.minLoad}%`, 'high',
             { 'Загрузка': `${ctx.load.toFixed(1)}%`, 'Упущенный потенциал': formatMoney(Math.max(0, (benchmarkConfig.minLoad - ctx.load) / 100 * ctx.workDays * ctx.chairs * ctx.hours * ctx.normoHour)) },
-            'Приоритет: доходимость первички, реанимация базы, плотность расписания.'
-          );
+            'Приоритет: доходимость первички, реанимация базы, плотность расписания.');
         }
-
         if (rentShare > benchmarkConfig.maxRentShare) {
-          add(
-            'Высокая доля аренды',
-            `Аренда ${rentShare.toFixed(1)}% при норме до ${benchmarkConfig.maxRentShare}%`,
-            'medium',
-            { 'Аренда': formatMoney(ctx.rent), 'Доля аренды': `${rentShare.toFixed(1)}%` },
-            'Провести renegotiation договора и/или повысить выручку на кресло-час.'
-          );
+          add('Высокая доля аренды', `Аренда ${rentShare.toFixed(1)}% при норме до ${benchmarkConfig.maxRentShare}%`, 'medium',
+            { 'Аренда': formatMoney(ctx.rent), 'Доля аренды': `${rentShare.toFixed(1)}%` }, 'Пересмотреть договор аренды и выручку на кресло-час.');
         }
-
         if (metrics.rcpMargin < benchmarkConfig.minMargin) {
-          add(
-            'Низкая операционная маржа',
-            `R по ЧП ${metrics.rcpMargin.toFixed(1)}% ниже целевого ${benchmarkConfig.minMargin}%`,
-            'high',
-            { 'Маржа': `${metrics.rcpMargin.toFixed(1)}%`, 'Чистая прибыль': formatMoney(metrics.netProfitMonthly) },
-            'Пересмотреть mix услуг, скидочную политику, структуру переменных затрат.'
-          );
+          add('Низкая операционная маржа', `Маржа ${metrics.rcpMargin.toFixed(1)}% ниже целевой ${benchmarkConfig.minMargin}%`, 'high',
+            { 'Маржа': `${metrics.rcpMargin.toFixed(1)}%`, 'Чистая прибыль': formatMoney(metrics.netProfitMonthly) }, 'Оптимизировать переменные расходы и продуктовый mix.');
         }
-
-        add(
-          'Сценарный рычаг роста',
-          'Модель показывает высокий вклад загрузки и нормо-часа в рост прибыли.',
-          'low',
+        add('Сценарный рычаг роста', 'Наибольший вклад: загрузка и нормо-час.', 'low',
           { 'ROI': typeof metrics.roiAnnual === 'number' ? `${metrics.roiAnnual.toFixed(1)}%` : '-', 'NPV': formatMoney(metrics.npv) },
-          'Тестировать сценарии +5 п.п. загрузки и +5% нормо-часа как основной growth-plan.'
-        );
+          'Тестировать сценарии +5 п.п. загрузки и +5% нормо-часа.');
 
         return findings;
       }
@@ -320,11 +320,17 @@
       ['ztl', 'ЗТЛ %', 0, 40],
       ['clinic', 'Содержание клиники %', 1, 50],
       ['marketing', 'Маркетинг %', 1, 20],
-      ['rent', 'Аренда ₽', 60000, 3000000],
-      ['tax', 'Налог %', 0, 30],
+      ['rent', 'Аренда ₽', 60000, 3000000]
+    ];
+
+    const investmentInputs = [
       ['capex', 'Вложения ₽', 0, 200000000],
       ['discountRate', 'Ставка дисконтирования %', 8, 25],
       ['dividendRate', 'Дивиденды %', 0, 100]
+    ];
+
+    const taxInputs = [
+      ['tax', 'Налог %', 0, 30]
     ];
 
     function controlRow(id, label, min, max) {
@@ -333,32 +339,65 @@
 
     function buildControls() {
       document.getElementById('revenueControls').innerHTML = revenueInputs.map(v => controlRow(...v)).join('');
-      document.getElementById('costControls').innerHTML = costInputs.map(v => controlRow(...v)).join('') +
-      `<div class="row"><label>Погасить кредит при capex ≥ 54M</label><input type="checkbox" id="payoffDebt" ${state.payoffDebt ? 'checked' : ''}></div>`;
+      document.getElementById('costControls').innerHTML = costInputs.map(v => controlRow(...v)).join('');
+      document.getElementById('investmentsControls').innerHTML = investmentInputs.map(v => controlRow(...v)).join('');
+      document.getElementById('taxControls').innerHTML = taxInputs.map(v => controlRow(...v)).join('');
+
+      document.getElementById('creditControls').innerHTML = `
+        <div class="row"><label>Сумма кредита ₽</label><input type="number" id="credit_amount" value="${state.credit.amount}"></div>
+        <div class="row"><label>Годовая ставка %</label><input type="number" id="credit_annualRate" value="${state.credit.annualRate}"></div>
+        <div class="row"><label>Срок кредита (мес.)</label><input type="number" id="credit_termMonths" value="${state.credit.termMonths}"></div>
+        <div class="row"><label>Дата начала</label><input type="date" id="credit_startDate" value="${state.credit.startDate}"></div>
+        <div class="row"><label>Тип платежа</label>
+          <select id="credit_paymentType">
+            <option value="annuity" ${state.credit.paymentType === 'annuity' ? 'selected' : ''}>Аннуитет</option>
+            <option value="differentiated" ${state.credit.paymentType === 'differentiated' ? 'selected' : ''}>Дифференцированный</option>
+          </select>
+        </div>
+        <div class="row"><label>Периодичность оплаты</label>
+          <select id="credit_paymentFrequency">
+            <option value="monthly" ${state.credit.paymentFrequency === 'monthly' ? 'selected' : ''}>Ежемесячно</option>
+            <option value="quarterly" ${state.credit.paymentFrequency === 'quarterly' ? 'selected' : ''}>Раз в 3 месяца</option>
+            <option value="custom" ${state.credit.paymentFrequency === 'custom' ? 'selected' : ''}>Произвольная</option>
+          </select>
+        </div>
+        <div class="row"><label>Произвольная частота (мес.)</label><input type="number" id="credit_customFrequencyMonths" value="${state.credit.customFrequencyMonths}"></div>
+        <div class="row"><label>Фактическая оплата ₽</label><input type="number" id="credit_actualPayment" value="${state.credit.actualPayment}"></div>
+        <div class="row"><label>Досрочное погашение (тело) ₽</label><input type="number" id="credit_prepaymentPrincipal" value="${state.credit.prepaymentPrincipal}"></div>
+        <div class="row"><label>Режим досрочного погашения</label>
+          <select id="credit_prepaymentMode">
+            <option value="reduce_payment" ${state.credit.prepaymentMode === 'reduce_payment' ? 'selected' : ''}>Уменьшить платеж</option>
+            <option value="reduce_term" ${state.credit.prepaymentMode === 'reduce_term' ? 'selected' : ''}>Уменьшить срок</option>
+          </select>
+        </div>
+      `;
+
+      const months = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+      document.getElementById('seasonalityControls').innerHTML = state.seasonality.map((v, i) => `
+        <div class="row"><label>${months[i]}</label><input type="number" step="0.01" min="0.1" max="2" id="season_${i}" value="${v}"></div>
+      `).join('');
     }
 
     function bindInputs() {
-      [...revenueInputs, ...costInputs].forEach(([id]) => {
+      [...revenueInputs, ...costInputs, ...investmentInputs, ...taxInputs].forEach(([id]) => {
         const s = document.getElementById(id);
-        const n = document.getElementById(id + 'Input');
-        s.addEventListener('input', () => {
-          state[id] = +s.value;
-          n.value = s.value;
-          recordChange(id, s.value);
-          updateAll();
-        });
-        n.addEventListener('change', () => {
-          state[id] = +n.value;
-          s.value = n.value;
-          recordChange(id, n.value);
-          updateAll();
-        });
+        const n = document.getElementById(`${id}Input`);
+        s.addEventListener('input', () => { state[id] = +s.value; n.value = s.value; updateAll(); });
+        n.addEventListener('change', () => { state[id] = +n.value; s.value = n.value; updateAll(); });
       });
 
-      document.getElementById('payoffDebt').addEventListener('change', (e) => {
-        state.payoffDebt = e.target.checked;
-        recordChange('payoffDebt', e.target.checked ? 'on' : 'off');
-        updateAll();
+      ['amount','annualRate','termMonths','customFrequencyMonths','actualPayment','prepaymentPrincipal'].forEach((k) => {
+        document.getElementById(`credit_${k}`).addEventListener('input', (e) => { state.credit[k] = +e.target.value; updateAll(); });
+      });
+      ['startDate','paymentType','paymentFrequency','prepaymentMode'].forEach((k) => {
+        document.getElementById(`credit_${k}`).addEventListener('change', (e) => { state.credit[k] = e.target.value; updateAll(); });
+      });
+
+      state.seasonality.forEach((_, i) => {
+        document.getElementById(`season_${i}`).addEventListener('input', (e) => {
+          state.seasonality[i] = Math.max(0.1, +e.target.value || 1);
+          updateAll();
+        });
       });
     }
 
@@ -370,20 +409,118 @@
           buttons.forEach(b => b.classList.remove('active'));
           panels.forEach(p => p.classList.remove('active'));
           btn.classList.add('active');
-          const panel = document.getElementById(btn.dataset.tab);
-          if (panel) panel.classList.add('active');
+          document.getElementById(btn.dataset.tab)?.classList.add('active');
         });
       });
     }
 
-    function recordChange() {}
+    function resetSeasonality() {
+      state.seasonality = [...DEFAULT_SEASONALITY];
+      buildControls();
+      bindInputs();
+      updateAll();
+    }
 
     function formatMoney(value) {
       if (!isFinite(value)) return '-';
       return new Intl.NumberFormat('ru-RU', { notation: 'compact', compactDisplay: 'short' }).format(Math.round(value)) + ' ₽';
     }
 
-    function getSeasonality(i) { return SEASONALITY.factors[i % 12]; }
+    function getSeasonality(i) { return state.seasonality[i % 12] || 1; }
+
+    function getFrequencyMonths(credit) {
+      if (credit.paymentFrequency === 'quarterly') return 3;
+      if (credit.paymentFrequency === 'custom') return Math.max(1, +credit.customFrequencyMonths || 1);
+      return 1;
+    }
+
+    function monthDiffFromNow(startDateStr) {
+      const now = new Date();
+      const start = new Date(startDateStr || now.toISOString().slice(0, 10));
+      return (start.getFullYear() - now.getFullYear()) * 12 + (start.getMonth() - now.getMonth());
+    }
+
+    function simulateCredit(credit, horizonMonths = 120) {
+      const originalPrincipal = Math.max(0, +credit.amount || 0);
+      const annualRate = Math.max(0, +credit.annualRate || 0);
+      const monthlyRate = annualRate / 12 / 100;
+      const initialTerm = Math.max(1, +credit.termMonths || 1);
+      const freq = getFrequencyMonths(credit);
+      const startOffset = monthDiffFromNow(credit.startDate);
+      const periodRate = Math.pow(1 + monthlyRate, freq) - 1;
+
+      let principal = originalPrincipal;
+      let unpaidInterest = 0;
+      let closeMonth = null;
+      let totalPaid = 0;
+      let totalInterestPaid = 0;
+      const schedule = [];
+
+      for (let month = 0; month < horizonMonths; month++) {
+        const isStarted = month >= startOffset;
+        const isDue = isStarted && ((month - startOffset) % freq === 0);
+        const remainingPeriods = Math.max(1, Math.ceil((initialTerm - Math.max(0, month - startOffset + 1)) / freq));
+
+        let interestAccrued = 0;
+        if (principal > 0 && isStarted) {
+          interestAccrued = principal * monthlyRate;
+          unpaidInterest += interestAccrued;
+        }
+
+        let scheduledPayment = 0;
+        let interestPaid = 0;
+        let principalPaid = 0;
+        let actualDebtLoad = 0;
+
+        if (principal > 0 && isDue) {
+          if (credit.paymentType === 'annuity') {
+            scheduledPayment = periodRate === 0 ? principal / remainingPeriods : principal * periodRate / (1 - Math.pow(1 + periodRate, -remainingPeriods));
+          } else {
+            scheduledPayment = (principal / remainingPeriods) + principal * periodRate;
+          }
+
+          let payment = (+credit.actualPayment || 0) > 0 ? +credit.actualPayment : scheduledPayment;
+          interestPaid = Math.min(unpaidInterest, payment);
+          unpaidInterest -= interestPaid;
+          principalPaid = Math.max(0, payment - interestPaid);
+
+          const prepay = Math.max(0, +credit.prepaymentPrincipal || 0);
+          principalPaid += prepay;
+
+          principalPaid = Math.min(principal, principalPaid);
+          principal -= principalPaid;
+
+          actualDebtLoad = payment + prepay;
+          totalPaid += actualDebtLoad;
+          totalInterestPaid += interestPaid;
+
+          if (credit.prepaymentMode === 'reduce_term' && prepay > 0 && principal <= 1 && closeMonth === null) {
+            closeMonth = month + 1;
+          }
+        }
+
+        if (principal <= 1 && unpaidInterest <= 1 && closeMonth === null && isStarted) closeMonth = month + 1;
+
+        schedule.push({
+          month: month + 1,
+          balanceStart: Math.max(0, principal + principalPaid),
+          interestAccrued,
+          interestPaid,
+          principalPaid,
+          balanceEnd: Math.max(0, principal),
+          unpaidInterest: Math.max(0, unpaidInterest),
+          actualDebtLoad,
+          scheduledPayment
+        });
+      }
+
+      return {
+        schedule,
+        closeMonth,
+        overpayment: Math.max(0, totalPaid - originalPrincipal),
+        totalInterestPaid
+      };
+    }
 
     function calculateInvestorYearlyForecastForState(localState, baseNetProfitMonthly, startMonth, investorIndex) {
       if (!localState.investors.length || baseNetProfitMonthly <= 0) return 0;
@@ -412,9 +549,9 @@
       const opexMonthly = totalVarCosts + s.rent;
       const ebitda = revenue - opexMonthly;
       const profit = ebitda * (1 - s.tax / 100);
-      const profitAnnual = profit * 12;
 
-      const creditPayment = (s.payoffDebt && s.capex >= CREDIT.threshold) ? 0 : CREDIT.monthlyPayment;
+      const creditDetails = simulateCredit(s.credit, 120);
+      const creditPayment = creditDetails.schedule[0]?.actualDebtLoad || 0;
       const netProfitMonthly = profit - creditPayment;
       const netProfitAnnual = netProfitMonthly * 12;
       const rcpMargin = revenue > 0 ? (ebitda / revenue) * 100 : 0;
@@ -429,7 +566,6 @@
       if (s.capex > 0 && netProfitMonthly > 0) {
         paybackMonths = Math.round(s.capex / netProfitMonthly) + 6;
         roiAnnual = (netProfitAnnual / s.capex) * 100;
-        npv = -s.capex;
         for (let i = 0; i < 60; i++) {
           let monthly = netProfitMonthly * getSeasonality(i);
           if (i < 6) monthly *= (i / 6 + 0.1);
@@ -438,6 +574,12 @@
         }
       }
 
+      const operatingCashFlow = Math.max(0, profit);
+      const dscr = creditPayment > 0 ? operatingCashFlow / creditPayment : Infinity;
+      const debtShare = operatingCashFlow > 0 ? (creditPayment / operatingCashFlow) * 100 : 0;
+      const baselineCredit = simulateCredit({ ...s.credit, prepaymentPrincipal: 0 }, 120);
+      const interestSavings = Math.max(0, baselineCredit.totalInterestPaid - creditDetails.totalInterestPaid);
+
       const investorYearlyDividends = s.investors.map((_, i) => {
         const y1 = calculateInvestorYearlyForecastForState(s, netProfitMonthly, 0, i);
         const y2 = calculateInvestorYearlyForecastForState(s, netProfitMonthly, 12, i);
@@ -445,29 +587,49 @@
         return { forecastYear1: y1, forecastYear2: y2, forecastYear3: y3, forecastTotal: y1 + y2 + y3 };
       });
 
-      return { revenue, revenueAnnual, opexMonthly, ebitda, profit, profitAnnual, netProfitMonthly, netProfitAnnual, rcpMargin, creditPayment, paybackMonths, roiAnnual, npv, expenses, investorYearlyDividends };
+      return {
+        revenue, revenueAnnual, opexMonthly, netProfitMonthly, netProfitAnnual,
+        rcpMargin, paybackMonths, roiAnnual, npv, expenses,
+        investorYearlyDividends, creditDetails, creditPayment, dscr,
+        debtShare, interestSavings
+      };
     }
 
-    function calculateMetrics() {
-      const m = buildMetricsFromState(state);
-      state.netProfitMonthly = m.netProfitMonthly;
-      return m;
-    }
-
+    function calculateMetrics() { return buildMetricsFromState(state); }
     function calculateMetricsFromState(data) { return buildMetricsFromState(data); }
 
     function updateHeaderKPI(m) {
       const kpis = [
         ['Выручка / мес', formatMoney(m.revenue)],
-        ['Выручка / год', formatMoney(m.revenueAnnual)],
         ['Чистая прибыль / мес', formatMoney(m.netProfitMonthly)],
-        ['Чистая прибыль / год', formatMoney(m.netProfitAnnual)],
         ['OPEX / мес', formatMoney(m.opexMonthly + m.creditPayment)],
         ['Маржа', `${m.rcpMargin.toFixed(1)}%`],
-        ['Окупаемость', typeof m.paybackMonths === 'number' ? `${m.paybackMonths} мес` : '-'],
-        ['ROI', typeof m.roiAnnual === 'number' ? `${m.roiAnnual.toFixed(1)}%` : '-']
+        ['ROI', typeof m.roiAnnual === 'number' ? `${m.roiAnnual.toFixed(1)}%` : '-'],
+        ['DSCR', isFinite(m.dscr) ? m.dscr.toFixed(2) : '∞']
       ];
       document.getElementById('headerKpis').innerHTML = kpis.map(([l, v]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+    }
+
+    function renderCreditPanels(m) {
+      const s0 = m.creditDetails.schedule[0] || {};
+      document.getElementById('creditMetrics').innerHTML = [
+        `Остаток основного долга (нач.): <strong>${formatMoney(s0.balanceStart || 0)}</strong>`,
+        `Начисленные проценты: <strong>${formatMoney(s0.interestAccrued || 0)}</strong>`,
+        `Погашение процентов: <strong>${formatMoney(s0.interestPaid || 0)}</strong>`,
+        `Погашение тела кредита: <strong>${formatMoney(s0.principalPaid || 0)}</strong>`,
+        `Остаток долга (кон.): <strong>${formatMoney(s0.balanceEnd || 0)}</strong>`,
+        `Накопленные неоплаченные проценты: <strong>${formatMoney(s0.unpaidInterest || 0)}</strong>`,
+        `Фактическая долговая нагрузка (текущий месяц): <strong>${formatMoney(s0.actualDebtLoad || 0)}</strong>`,
+        `Экономия на процентах от досрочного погашения: <strong>${formatMoney(m.interestSavings)}</strong>`,
+        `Фактический срок закрытия кредита: <strong>${m.creditDetails.closeMonth ? m.creditDetails.closeMonth + ' мес.' : 'не закрыт в горизонте'}</strong>`,
+        `Переплата по кредиту: <strong>${formatMoney(m.creditDetails.overpayment)}</strong>`
+      ].map(x => `<li class="item">${x}</li>`).join('');
+
+      document.getElementById('amortizationBody').innerHTML = m.creditDetails.schedule.slice(0, 60).map(r => `
+        <tr>
+          <td>${r.month}</td><td>${formatMoney(r.balanceStart)}</td><td>${formatMoney(r.interestAccrued)}</td><td>${formatMoney(r.interestPaid)}</td><td>${formatMoney(r.principalPaid)}</td><td>${formatMoney(r.balanceEnd)}</td><td>${formatMoney(r.unpaidInterest)}</td><td>${formatMoney(r.actualDebtLoad)}</td>
+        </tr>
+      `).join('');
     }
 
     function renderInsightPanels(metrics) {
@@ -477,12 +639,11 @@
       document.getElementById('executiveSummary').innerHTML = `
         <li class="item">Текущая чистая прибыль: <strong>${formatMoney(metrics.netProfitMonthly)}</strong> при выручке <strong>${formatMoney(metrics.revenue)}</strong>.</li>
         <li class="item">ROI: <strong>${typeof metrics.roiAnnual === 'number' ? metrics.roiAnnual.toFixed(1) + '%' : '-'}</strong>, NPV: <strong>${formatMoney(metrics.npv)}</strong>.</li>
-        <li class="item">Ключевой управленческий рычаг: загрузка <strong>${state.load.toFixed(1)}%</strong> и средний нормо-час <strong>${formatMoney(state.normoHour)}</strong>.</li>
+        <li class="item">Долговая нагрузка: <strong>${formatMoney(metrics.creditPayment)}</strong>, DSCR: <strong>${isFinite(metrics.dscr) ? metrics.dscr.toFixed(2) : '∞'}</strong>.</li>
       `;
 
       document.getElementById('aiInsightsPanel').innerHTML = insights.map(i => `
-        <li class="item">
-          <span class="badge ${sevClass(i.severity)}">${i.severity.toUpperCase()}</span> <strong>${i.title}</strong><br>
+        <li class="item"><span class="badge ${sevClass(i.severity)}">${i.severity.toUpperCase()}</span> <strong>${i.title}</strong><br>
           <span class="mini">Причина: ${i.reason}</span><br>
           ${Object.entries(i.metricsBasis).map(([k,v]) => `<span class="chip">${k}: ${v}</span>`).join('')}
           <div class="mini" style="margin-top:6px;">Рекомендация: ${i.recommendation}</div>
@@ -494,8 +655,7 @@
         ['Маркетинг', state.marketing, benchmarkConfig.maxMarketing]
       ];
       document.getElementById('profitLeakagePanel').innerHTML = leakage.map(([name, val, th]) =>
-        `<li class="item">${name}: <strong class="${val > th ? 'bad' : 'good'}">${val.toFixed(1)}%</strong> <span class="mini">(порог ${th}%)</span></li>`
-      ).join('');
+        `<li class="item">${name}: <strong class="${val > th ? 'bad' : 'good'}">${val.toFixed(1)}%</strong> <span class="mini">(порог ${th}%)</span></li>`).join('');
 
       const baseProfit = metrics.netProfitMonthly || 1;
       const drivers = [
@@ -510,8 +670,7 @@
       }).sort((a,b) => b.delta - a.delta);
 
       document.getElementById('sensitivityDriversPanel').innerHTML = drivers.map(d =>
-        `<li class="item">${d.name}: <strong class="${d.delta >= 0 ? 'good' : 'bad'}">${d.delta >= 0 ? '+' : ''}${d.delta.toFixed(1)}%</strong> к чистой прибыли</li>`
-      ).join('');
+        `<li class="item">${d.name}: <strong class="${d.delta >= 0 ? 'good' : 'bad'}">${d.delta >= 0 ? '+' : ''}${d.delta.toFixed(1)}%</strong> к чистой прибыли</li>`).join('');
 
       const warnings = [];
       if (state.load < benchmarkConfig.minLoad) warnings.push(`Загрузка ${state.load}% ниже бенчмарка ${benchmarkConfig.minLoad}%`);
@@ -519,8 +678,7 @@
       if (state.fotStaff > benchmarkConfig.maxStaffFot) warnings.push(`ФОТ персонала ${state.fotStaff}% выше нормы ${benchmarkConfig.maxStaffFot}%`);
       if (state.marketing > benchmarkConfig.maxMarketing) warnings.push(`Маркетинг ${state.marketing}% выше нормы ${benchmarkConfig.maxMarketing}%`);
       if (typeof metrics.roiAnnual === 'number' && metrics.roiAnnual < benchmarkConfig.minRoiAnnual) warnings.push(`ROI ${metrics.roiAnnual.toFixed(1)}% ниже целевого ${benchmarkConfig.minRoiAnnual}%`);
-      document.getElementById('benchmarkWarnings').innerHTML = (warnings.length ? warnings : ['Отклонений от бенчмарков не обнаружено.'])
-        .map(w => `<li class="item">${w}</li>`).join('');
+      document.getElementById('benchmarkWarnings').innerHTML = (warnings.length ? warnings : ['Отклонений от бенчмарков не обнаружено.']).map(w => `<li class="item">${w}</li>`).join('');
 
       const baseline = pointA ? calculateMetricsFromState(pointA) : (scenarios[0] ? calculateMetricsFromState(scenarios[0].state) : null);
       if (!baseline) {
@@ -538,7 +696,6 @@
           return `<tr><td>${r[0]}</td><td>${cell(r[1], r[3])}</td><td>${cell(r[2], r[3])}</td><td class="${d >= 0 ? 'good' : 'bad'}">${r[3] ? (d >= 0 ? '+' : '') + formatMoney(d) : (d >= 0 ? '+' : '') + d.toFixed(1) + '%'}</td></tr>`;
         }).join('')}</tbody></table>`;
       }
-
     }
 
     function loadScenarios() {
@@ -560,19 +717,12 @@
           <td>${s.name}</td><td>${formatMoney(m.revenue)}</td><td>${formatMoney(m.netProfitMonthly)}</td>
           <td>${typeof m.roiAnnual === 'number' ? m.roiAnnual.toFixed(1) + '%' : '-'}</td>
           <td>${new Date(s.timestamp).toLocaleString('ru-RU')}</td>
-          <td>
-            <button class="btn" onclick="loadScenario(${i})">Загрузить</button>
-            <button class="btn btn-danger" onclick="deleteScenario(${i})">Удалить</button>
-          </td>
+          <td><button class="btn" onclick="loadScenario(${i})">Загрузить</button> <button class="btn btn-danger" onclick="deleteScenario(${i})">Удалить</button></td>
         </tr>`;
       }).join('');
     }
 
-    function fixPointA() {
-      pointA = JSON.parse(JSON.stringify(state));
-      recordChange('pointA', 'фиксирована');
-      updateAll();
-    }
+    function fixPointA() { pointA = JSON.parse(JSON.stringify(state)); updateAll(); }
 
     function saveScenario() {
       const name = document.getElementById('scenarioName').value.trim();
@@ -581,7 +731,6 @@
       document.getElementById('scenarioName').value = '';
       saveScenariosStorage();
       updateScenariosTable();
-      recordChange('scenario_saved', name);
       updateAll();
     }
 
@@ -605,34 +754,32 @@
       cashFlowChart = new Chart(document.getElementById('cashFlowChart').getContext('2d'), {
         type: 'line', data: { labels: [], datasets: [
           { label: 'Денежный поток, ₽', data: [], borderColor: '#2dd4bf', backgroundColor: 'rgba(45,212,191,.18)', fill: true, tension: .3 },
-          { label: 'Кредит', data: [], borderColor: '#ef4444', borderDash: [5,5], tension: .3 }
-        ] },
-        options: { responsive: true, maintainAspectRatio: true, scales: { y: { ticks: { callback: (v) => formatMoney(v) } } } }
+          { label: 'Долговая нагрузка', data: [], borderColor: '#ef4444', borderDash: [5,5], tension: .3 }
+        ] }, options: { responsive: true, scales: { y: { ticks: { callback: (v) => formatMoney(v) } } } }
       });
 
       revenueVsProfitChart = new Chart(document.getElementById('revenueVsProfitChart').getContext('2d'), {
-        type: 'line', data: { labels: [], datasets: [] },
-        options: { responsive: true, maintainAspectRatio: true, scales: { y: { ticks: { callback: (v) => formatMoney(v) } } } }
+        type: 'line', data: { labels: [], datasets: [] }, options: { responsive: true, scales: { y: { ticks: { callback: (v) => formatMoney(v) } } } }
       });
 
       expensesChart = new Chart(document.getElementById('expensesChart').getContext('2d'), {
-        type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#f87171','#60a5fa','#facc15','#34d399','#a78bfa','#fb923c','#94a3b8','#ef4444'] }] },
-        options: { responsive: true, maintainAspectRatio: true }
+        type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#f87171','#60a5fa','#facc15','#34d399','#a78bfa','#fb923c','#94a3b8','#ef4444'] }] }, options: { responsive: true }
       });
     }
 
     function updateCharts(m) {
-      const months = Array.from({ length: 36 }, (_, i) => `М${i+1}`);
+      const months = Array.from({ length: 36 }, (_, i) => `М${i + 1}`);
       const flow = months.map((_, i) => {
         let x = m.netProfitMonthly * getSeasonality(i);
         if (i < 6) x *= (i / 6 + .1);
         x *= Math.pow(1.02, i / 12);
         return x;
       });
-      const credit = months.map(() => (state.payoffDebt && state.capex >= CREDIT.threshold) ? 0 : -CREDIT.monthlyPayment);
+      const debt = months.map((_, i) => -(m.creditDetails.schedule[i]?.actualDebtLoad || 0));
+
       cashFlowChart.data.labels = months;
       cashFlowChart.data.datasets[0].data = flow;
-      cashFlowChart.data.datasets[1].data = credit;
+      cashFlowChart.data.datasets[1].data = debt;
       cashFlowChart.update();
 
       const datasets = [];
@@ -648,19 +795,20 @@
       revenueVsProfitChart.data.datasets = datasets;
       revenueVsProfitChart.update();
 
-      const labels = Object.keys(m.expenses).filter((k) => m.expenses[k] > 0);
-      const vals = labels.map((k) => m.expenses[k]);
+      const labels = Object.keys(m.expenses).filter(k => m.expenses[k] > 0);
+      const vals = labels.map(k => m.expenses[k]);
       expensesChart.data.labels = labels;
       expensesChart.data.datasets[0].data = vals;
       expensesChart.update();
     }
 
     function updateAll() {
-      currentMetrics = calculateMetrics();
-      updateHeaderKPI(currentMetrics);
-      renderInsightPanels(currentMetrics);
+      const metrics = calculateMetrics();
+      updateHeaderKPI(metrics);
+      renderCreditPanels(metrics);
+      renderInsightPanels(metrics);
       updateScenariosTable();
-      updateCharts(currentMetrics);
+      updateCharts(metrics);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
