@@ -48,7 +48,13 @@
     .kpi .v { font-weight: 800; font-size: 1.1rem; color: var(--accent); }
     .kpi .l { margin-top: 4px; color: var(--muted); font-size: .82rem; }
 
-    .tabs { display: flex; gap: 10px; margin: 18px 0; flex-wrap: wrap; }
+    .tabs {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
     .tab-btn {
       border: 1px solid var(--line);
       background: rgba(15,23,42,.65);
@@ -57,6 +63,7 @@
       padding: 9px 14px;
       cursor: pointer;
       font-weight: 600;
+      width: 100%;
     }
     .tab-btn.active { background: linear-gradient(130deg, var(--accent), var(--accent-2)); color: #00111a; border-color: transparent; }
     .tab-panel { display: none; }
@@ -116,6 +123,7 @@
 
     @media (max-width: 1200px) {
       .controls, .panels, .charts-2 { grid-template-columns: 1fr; }
+      .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .row { flex-wrap: wrap; }
     }
   </style>
@@ -129,13 +137,13 @@
     </section>
 
     <div class="tabs">
-      <button class="tab-btn active" data-tab="tab-inputs">1. Вводные данные</button>
-      <button class="tab-btn" data-tab="tab-scenarios">2. Сценарии</button>
-      <button class="tab-btn" data-tab="tab-credit">3. Кредит</button>
-      <button class="tab-btn" data-tab="tab-investments">4. Инвестиции</button>
-      <button class="tab-btn" data-tab="tab-seasonality">5. Сезонность</button>
-      <button class="tab-btn" data-tab="tab-taxes">6. Налоги</button>
-      <button class="tab-btn" data-tab="tab-insights">7. Выводы</button>
+      <button class="tab-btn active" data-tab="tab-inputs">Вводные данные</button>
+      <button class="tab-btn" data-tab="tab-scenarios">Сценарии</button>
+      <button class="tab-btn" data-tab="tab-credit">Кредит</button>
+      <button class="tab-btn" data-tab="tab-investments">Инвестиции</button>
+      <button class="tab-btn" data-tab="tab-seasonality">Сезонность</button>
+      <button class="tab-btn" data-tab="tab-taxes">Налоги</button>
+      <button class="tab-btn" data-tab="tab-insights">Выводы</button>
     </div>
 
     <section id="tab-inputs" class="tab-panel active">
@@ -194,7 +202,7 @@
         <ul id="creditMetrics" class="list"></ul>
       </section>
       <section class="card">
-        <h3>🧾 Амортизация (по месяцам)</h3>
+        <h3>🧾 График (по месяцам)</h3>
         <div style="overflow:auto; max-height:360px;">
           <table>
             <thead>
@@ -607,7 +615,18 @@
 
     function updateHeaderKPI(m) {
       const container = document.getElementById('headerKpis');
-      if (!container || !m) return;
+      if (!container) return;
+      if (!m) {
+        container.innerHTML = [
+          ['Выручка / мес', '0 ₽'],
+          ['Чистая прибыль / мес', '0 ₽'],
+          ['OPEX / мес', '0 ₽'],
+          ['Маржа', '0%'],
+          ['ROI', '-'],
+          ['DSCR', '-']
+        ].map(([l, v]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+        return;
+      }
       const kpis = [
         ['Выручка / мес', formatMoney(m.revenue)],
         ['Чистая прибыль / мес', formatMoney(m.netProfitMonthly)],
@@ -802,6 +821,12 @@
       cashFlowChart.update();
 
       const datasets = [];
+      datasets.push({
+        label: 'Текущий',
+        data: months.map((_, i) => m.netProfitMonthly * getSeasonality(i)),
+        borderColor: '#2dd4bf',
+        tension: .3
+      });
       if (pointA) {
         const pm = calculateMetricsFromState(pointA);
         datasets.push({ label: 'Точка А', data: months.map((_, i) => pm.netProfitMonthly * getSeasonality(i)), borderColor: '#60a5fa', tension: .3 });
