@@ -221,6 +221,25 @@
         <h3>💼 Инвестиции</h3>
         <div id="investmentsControls"></div>
       </section>
+      <section class="card" style="margin-top:16px;">
+        <h3>Инвесторы и возврат инвестиций</h3>
+        <p class="mini">Расчет долей инвесторов, дивидендов и возврата инвестиций</p>
+        <div id="investorKpis" class="kpis"></div>
+        <div class="row" style="margin-top:12px;">
+          <label>Количество инвесторов</label>
+          <input type="range" id="investorCount" min="1" max="10" value="2" />
+          <input type="number" id="investorCountInput" min="1" max="10" value="2" />
+        </div>
+        <div id="investorSharesControls"></div>
+        <div id="investorShareWarning" class="mini bad" style="margin: 8px 0 0;"></div>
+        <div class="row" style="margin-top:12px;">
+          <label>Коэффициент выплаты дивидендов (%)</label>
+          <input type="range" id="dividendRate" min="0" max="100" value="50" />
+          <input type="number" id="dividendRateInput" min="0" max="100" value="50" />
+        </div>
+        <p class="mini">Процент от чистой прибыли, который направляется на дивиденды</p>
+        <div id="investorForecastCards" class="list" style="margin-top:12px;"></div>
+      </section>
     </section>
 
     <section id="tab-seasonality" class="tab-panel">
@@ -256,7 +275,7 @@
     let state = {
       workDays: 21, chairs: 5, hours: 12, load: 60, normoHour: 18000,
       soc: 8, fotDoctors: 25, fotStaff: 10, ztl: 5, clinic: 17, marketing: 5, rent: 900000,
-      tax: 6, capex: 50000000, discountRate: 12, dividendRate: 50,
+      tax: 6, capex: 50000000, discountRate: 12, dividendRate: 50, investorCount: 2,
       credit: {
         amount: 54000000,
         annualRate: 18,
@@ -333,8 +352,7 @@
 
     const investmentInputs = [
       ['capex', 'Вложения ₽', 0, 200000000],
-      ['discountRate', 'Ставка дисконтирования %', 8, 25],
-      ['dividendRate', 'Дивиденды %', 0, 100]
+      ['discountRate', 'Ставка дисконтирования %', 8, 25]
     ];
 
     const taxInputs = [
@@ -345,11 +363,37 @@
       return `<div class="row"><label>${label}</label><input type="range" id="${id}" min="${min}" max="${max}" value="${state[id]}"><input type="number" id="${id}Input" min="${min}" max="${max}" value="${state[id]}"></div>`;
     }
 
+    function normalizeInvestorsCount(count) {
+      const safeCount = Math.max(1, Math.min(10, Number(count) || 1));
+      const existing = state.investors || [];
+      if (existing.length !== safeCount) {
+        state.investors = Array.from({ length: safeCount }, (_, i) => ({
+          name: `Инвестор ${i + 1}`,
+          share: +(100 / safeCount).toFixed(1)
+        }));
+        const delta = 100 - state.investors.reduce((s, inv) => s + inv.share, 0);
+        state.investors[safeCount - 1].share = +(state.investors[safeCount - 1].share + delta).toFixed(1);
+      }
+      state.investorCount = safeCount;
+    }
+
     function buildControls() {
+      normalizeInvestorsCount(state.investorCount || state.investors?.length || 2);
       document.getElementById('revenueControls').innerHTML = revenueInputs.map(v => controlRow(...v)).join('');
       document.getElementById('costControls').innerHTML = costInputs.map(v => controlRow(...v)).join('');
       document.getElementById('investmentsControls').innerHTML = investmentInputs.map(v => controlRow(...v)).join('');
       document.getElementById('taxControls').innerHTML = taxInputs.map(v => controlRow(...v)).join('');
+      document.getElementById('investorCount').value = state.investorCount;
+      document.getElementById('investorCountInput').value = state.investorCount;
+      document.getElementById('dividendRate').value = state.dividendRate;
+      document.getElementById('dividendRateInput').value = state.dividendRate;
+      document.getElementById('investorSharesControls').innerHTML = state.investors.map((inv, i) => `
+        <div class="row">
+          <label>${inv.name}</label>
+          <input type="range" min="0" max="100" step="0.1" id="inv_share_${i}" value="${inv.share}">
+          <input type="number" min="0" max="100" step="0.1" id="inv_share_${i}_input" value="${inv.share}">
+        </div>
+      `).join('');
 
       document.getElementById('creditControls').innerHTML = `
         <div class="row"><label>Сумма кредита ₽</label><input type="number" id="credit_amount" value="${state.credit.amount}"></div>
@@ -392,6 +436,46 @@
         const n = document.getElementById(`${id}Input`);
         s.addEventListener('input', () => { state[id] = +s.value; n.value = s.value; updateAll(); });
         n.addEventListener('change', () => { state[id] = +n.value; s.value = n.value; updateAll(); });
+      });
+      document.getElementById('investorCount').addEventListener('input', (e) => {
+        state.investorCount = +e.target.value;
+        document.getElementById('investorCountInput').value = e.target.value;
+        normalizeInvestorsCount(state.investorCount);
+        buildControls();
+        bindInputs();
+        updateAll();
+      });
+      document.getElementById('investorCountInput').addEventListener('change', (e) => {
+        state.investorCount = +e.target.value;
+        document.getElementById('investorCount').value = e.target.value;
+        normalizeInvestorsCount(state.investorCount);
+        buildControls();
+        bindInputs();
+        updateAll();
+      });
+      document.getElementById('dividendRate').addEventListener('input', (e) => {
+        state.dividendRate = +e.target.value;
+        document.getElementById('dividendRateInput').value = e.target.value;
+        updateAll();
+      });
+      document.getElementById('dividendRateInput').addEventListener('change', (e) => {
+        state.dividendRate = +e.target.value;
+        document.getElementById('dividendRate').value = e.target.value;
+        updateAll();
+      });
+      state.investors.forEach((_, i) => {
+        const r = document.getElementById(`inv_share_${i}`);
+        const n = document.getElementById(`inv_share_${i}_input`);
+        r.addEventListener('input', (e) => {
+          state.investors[i].share = +e.target.value;
+          n.value = e.target.value;
+          updateAll();
+        });
+        n.addEventListener('change', (e) => {
+          state.investors[i].share = +e.target.value;
+          r.value = e.target.value;
+          updateAll();
+        });
       });
 
       ['amount','annualRate','termMonths','customFrequencyMonths','actualPayment','prepaymentPrincipal'].forEach((k) => {
@@ -730,6 +814,46 @@
       }
     }
 
+    function renderInvestorReturns(metrics) {
+      const shareSum = state.investors.reduce((s, inv) => s + (Number(inv.share) || 0), 0);
+      const shareWarning = document.getElementById('investorShareWarning');
+      if (shareWarning) {
+        shareWarning.textContent = Math.abs(shareSum - 100) > 0.01
+          ? `Сумма долей инвесторов должна быть 100%. Сейчас: ${shareSum.toFixed(1)}%`
+          : '';
+      }
+
+      const totalDiv3y = metrics.investorYearlyDividends.reduce((s, d) => s + d.forecastTotal, 0);
+      const totalDivY1 = metrics.investorYearlyDividends.reduce((s, d) => s + d.forecastYear1, 0);
+      const y1PctCapex = state.capex > 0 ? (totalDivY1 / state.capex) * 100 : 0;
+      const kpiNode = document.getElementById('investorKpis');
+      if (kpiNode) {
+        kpiNode.innerHTML = [
+          [`${formatMoney(totalDiv3y)}`, 'Общая выплата дивидендов', 'За 3 года'],
+          [`${formatMoney(totalDivY1)}`, 'Год 1 дивиденды', `${y1PctCapex.toFixed(1)}% от CAPEX`],
+          [`${state.investors.length}`, 'Инвесторов', `Общая доля: ${shareSum.toFixed(1)}%`]
+        ].map(([v, l, s]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}<br><span class="mini">${s}</span></div></div>`).join('');
+      }
+
+      const cards = state.investors.map((inv, i) => {
+        const d = metrics.investorYearlyDividends[i] || { forecastYear1: 0, forecastYear2: 0, forecastYear3: 0, forecastTotal: 0 };
+        const investAmount = state.capex > 0 ? state.capex * ((inv.share || 0) / 100) : 0;
+        const roi = investAmount > 0 ? (d.forecastTotal / investAmount) * 100 : null;
+        return `
+          <li class="item">
+            <strong>${inv.name}</strong> — доля: ${Number(inv.share || 0).toFixed(1)}%<br>
+            Дивиденды за 3 года: <strong>${formatMoney(d.forecastTotal)}</strong><br>
+            Возврат инвестиций: <strong>${roi === null ? '—' : `${roi.toFixed(1)}%`}</strong><br>
+            <span class="chip">Год 1: ${formatMoney(d.forecastYear1)}</span>
+            <span class="chip">Год 2: ${formatMoney(d.forecastYear2)}</span>
+            <span class="chip">Год 3: ${formatMoney(d.forecastYear3)}</span>
+          </li>
+        `;
+      }).join('');
+      const cardsNode = document.getElementById('investorForecastCards');
+      if (cardsNode) cardsNode.innerHTML = cards;
+    }
+
     function loadScenarios() {
       try { scenarios = JSON.parse(localStorage.getItem('stomo_scenarios') || '[]'); }
       catch { scenarios = []; }
@@ -759,7 +883,14 @@
     function saveScenario() {
       const name = document.getElementById('scenarioName').value.trim();
       if (!name) return;
-      scenarios.push({ name, timestamp: new Date().toISOString(), state: JSON.parse(JSON.stringify(state)) });
+      scenarios.push({
+        name,
+        timestamp: new Date().toISOString(),
+        state: JSON.parse(JSON.stringify(state)),
+        investorCount: state.investorCount,
+        investorShares: state.investors.map(i => i.share),
+        dividendPayoutRatio: state.dividendRate
+      });
       document.getElementById('scenarioName').value = '';
       saveScenariosStorage();
       updateScenariosTable();
@@ -768,6 +899,11 @@
 
     function loadScenario(i) {
       Object.assign(state, JSON.parse(JSON.stringify(scenarios[i].state)));
+      if (scenarios[i].investorCount) state.investorCount = scenarios[i].investorCount;
+      if (Array.isArray(scenarios[i].investorShares) && state.investors.length === scenarios[i].investorShares.length) {
+        state.investors = state.investors.map((inv, idx) => ({ ...inv, share: scenarios[i].investorShares[idx] }));
+      }
+      if (typeof scenarios[i].dividendPayoutRatio === 'number') state.dividendRate = scenarios[i].dividendPayoutRatio;
       buildControls();
       bindInputs();
       updateAll();
@@ -851,6 +987,7 @@
       updateHeaderKPI(metrics);
       renderCreditPanels(metrics);
       renderInsightPanels(metrics);
+      renderInvestorReturns(metrics);
       updateScenariosTable();
       updateCharts(metrics);
     }
