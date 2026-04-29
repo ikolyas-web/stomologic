@@ -220,6 +220,7 @@
       <section class="card">
         <h3>💼 Инвестиции</h3>
         <div id="investmentsControls"></div>
+        <div id="investmentsPayback" class="kpi" style="margin-top:12px;"></div>
       </section>
       <section class="card" style="margin-top:16px;">
         <h3>Инвесторы и возврат инвестиций</h3>
@@ -854,6 +855,13 @@
       if (cardsNode) cardsNode.innerHTML = cards;
     }
 
+    function renderInvestmentsPanel(metrics) {
+      const node = document.getElementById('investmentsPayback');
+      if (!node || !metrics) return;
+      const payback = typeof metrics.paybackMonths === 'number' ? `${metrics.paybackMonths} мес.` : '—';
+      node.innerHTML = `<div class="v">${payback}</div><div class="l">Срок окупаемости вложенных денежных средств</div>`;
+    }
+
     function loadScenarios() {
       try { scenarios = JSON.parse(localStorage.getItem('stomo_scenarios') || '[]'); }
       catch { scenarios = []; }
@@ -986,6 +994,7 @@
       const metrics = calculateMetrics();
       updateHeaderKPI(metrics);
       renderCreditPanels(metrics);
+      renderInvestmentsPanel(metrics);
       renderInsightPanels(metrics);
       renderInvestorReturns(metrics);
       updateScenariosTable();
